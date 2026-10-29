@@ -1,0 +1,79 @@
+---
+// A shell command with a copy button. copy.ts reveals the button: without JavaScript it stays hidden.
+import Icon from "../Icon.astro";
+
+interface Props {
+  command: string;
+}
+
+const { command } = Astro.props;
+---
+
+<div class="command">
+  <code tabindex="0">{command}</code>
+  <button type="button" data-copy={command} aria-label="Copy the command" hidden>
+    <Icon name="copy" class="icon-copy" />
+    <Icon name="check" strokeWidth={2.5} class="icon-done" />
+  </button>
+  <span class="visually-hidden" role="status" data-copy-status></span>
+</div>
+
+<script src="../../scripts/copy.ts"></script>
+
+<style>
+  .command {
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-left: 16px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-size: 14px;
+  }
+
+  code {
+    min-width: 0;
+    padding: 10px 4px 10px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* The prompt is decoration: not copied with the command, not read out. */
+  code::before {
+    content: "$ " / "";
+    color: var(--muted);
+  }
+
+  button {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  button[hidden] {
+    display: none;
+  }
+
+  button:hover {
+    color: var(--ink);
+  }
+
+  button :global(.icon-done),
+  [data-copied] :global(.icon-copy) {
+    display: none;
+  }
+
+  [data-copied] :global(.icon-done) {
+    display: block;
+    color: var(--accent-ink);
+  }
+</style>

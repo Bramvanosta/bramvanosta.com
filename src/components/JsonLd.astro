@@ -1,0 +1,12 @@
+---
+// Structured data for search engines. A data block, so the Worker's CSP does not apply to it.
+// "<" is escaped so that no string in the data can close the script element.
+interface Props {
+  data: Record<string, unknown>;
+}
+
+const { data } = Astro.props;
+const json = JSON.stringify(data).replace(/</g, "\\u003c");
+---
+
+<script type="application/ld+json" set:html={json} />

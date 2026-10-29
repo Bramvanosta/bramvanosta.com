@@ -1,0 +1,299 @@
+---
+import { getCollection } from "astro:content";
+import Clock from "../components/home/Clock.astro";
+import JsonLd from "../components/JsonLd.astro";
+import RanchMark from "../components/ranch/RanchMark.astro";
+import HomeLayout from "../layouts/Home.astro";
+import { link } from "../lib/links.ts";
+import { PERSON, PROFILE } from "../lib/profile.ts";
+import { publicUrl, type Subsite } from "../lib/sites.ts";
+
+const path = Astro.url.pathname;
+
+const services = [
+  {
+    title: "Full-stack development",
+    text: "Web apps and APIs in TypeScript, React and Node.js, from the first version to production.",
+  },
+  {
+    title: "Technical audits",
+    text: "Code, architecture and delivery reviewed, with findings ranked by impact and a plan to act on.",
+  },
+  {
+    title: "Tech lead, in your team",
+    text: "A senior developer for a long-term engagement, or part-time technical leadership.",
+  },
+];
+
+// A subsite's mark, shown next to its project's name.
+const marks: Partial<Record<Subsite, typeof RanchMark>> = { ranch: RanchMark };
+
+const projects = (await getCollection("projects", ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map(({ data }) => {
+    const subsite = "subsite" in data ? data.subsite : undefined;
+    const target = "subsite" in data ? publicUrl(`/${data.subsite}/`) : new URL(data.url);
+    return {
+      ...data,
+      href: subsite ? link(`/${subsite}/`, path) : target.href,
+      host: target.host,
+      Mark: subsite && marks[subsite],
+    };
+  });
+
+const home = publicUrl("/").href;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: PROFILE.name, url: home },
+    {
+      ...PERSON,
+      jobTitle: PROFILE.role,
+      email: PROFILE.email,
+      address: { "@type": "PostalAddress", addressCountry: "FR" },
+      knowsAbout: ["TypeScript", "React", "Node.js", "Rust"],
+      sameAs: [PROFILE.github, PROFILE.linkedin],
+    },
+  ],
+};
+---
+
+<HomeLayout
+  title="Bram van Osta, freelance full-stack developer"
+  description="Freelance full-stack developer in south-west France: web and desktop apps (TypeScript, React, Node.js, Rust), technical audits and tech lead roles."
+>
+  <JsonLd slot="head" data={structuredData} />
+  <main>
+    <header class="intro">
+      <div>
+        <h1>{PROFILE.name}</h1>
+        <p class="label meta">
+          {PROFILE.location}
+          <Clock />
+        </p>
+      </div>
+      <p class="lead">
+        {PROFILE.role}. I build web and desktop apps with TypeScript, React, Node.js and Rust,{" "}
+        <span class="flourish">
+          and help teams ship them.
+          <svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M3 8.5C38 4 78 3.5 112 5.5S170 9.5 197 4.5" pathLength="1"></path>
+          </svg>
+        </span>
+      </p>
+      <p class="links">
+        <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
+        <a href={PROFILE.github}>
+          GitHub <span aria-hidden="true">↗</span>
+        </a>
+        <a href={PROFILE.linkedin}>
+          LinkedIn <span aria-hidden="true">↗</span>
+        </a>
+      </p>
+    </header>
+
+    <section aria-labelledby="work">
+      <h2 class="label" id="work">
+        <span aria-hidden="true">01</span> Work
+      </h2>
+      <div class="entries">
+        {services.map((service) => (
+          <div class="entry">
+            <h3>{service.title}</h3>
+            <p class="text">{service.text}</p>
+          </div>
+        ))}
+      </div>
+      <p>
+        Want to work together? Write to <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>, or{" "}
+        <a href={PROFILE.linkedin}>
+          message me on LinkedIn <span aria-hidden="true">↗</span>
+        </a>
+      </p>
+    </section>
+
+    <section aria-labelledby="projects">
+      <h2 class="label" id="projects">
+        <span aria-hidden="true">02</span> Projects
+      </h2>
+      <div class="entries">
+        {projects.map(({ Mark, ...project }) => (
+          <div class="entry">
+            <h3>
+              <a class="project" href={project.href}>
+                {Mark && <Mark size={18} class="mark" />}
+                {project.name}
+              </a>
+            </h3>
+            <p class="text">{project.summary}</p>
+            {project.stack.length > 0 && <p class="label">{project.stack.join(" · ")}</p>}
+            <p class="links small">
+              <a href={project.href}>
+                {project.host} <span aria-hidden="true">→</span>
+              </a>
+              {project.repo && (
+                <a href={project.repo}>
+                  Source <span aria-hidden="true">↗</span>
+                </a>
+              )}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
+</HomeLayout>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .meta {
+    margin-top: 4px;
+  }
+
+  .lead {
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  /* The flourish: an orange stroke under the end of the sentence. It is revealed once the page
+     loads, and drawn again when the sentence is hovered. */
+  .flourish {
+    position: relative;
+    display: inline-block;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 21px;
+  }
+
+  .flourish svg {
+    position: absolute;
+    left: -2%;
+    bottom: -6px;
+    width: 104%;
+    height: 12px;
+    overflow: visible;
+  }
+
+  .flourish path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 16px;
+  }
+
+  .links.small {
+    margin-top: 4px;
+    font-size: 15px;
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  h2::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--line);
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .entry {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .text {
+    color: var(--muted);
+  }
+
+  .project {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (max-width: 600px) {
+    main {
+      gap: 56px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .flourish svg {
+      animation: reveal 0.9s cubic-bezier(0.6, 0, 0.2, 1) 0.6s both;
+    }
+
+    .flourish:hover path {
+      animation: draw 0.9s cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    /* A project's mark moves while its link is hovered: Ranch's bars swap, like a queue. */
+    .project :global(.mark rect) {
+      transition: transform 0.35s cubic-bezier(0.3, 0, 0.2, 1);
+    }
+
+    .project:hover :global(.mark .bar-active) {
+      transform: translateX(-6px);
+    }
+
+    .project:hover :global(.mark .bar-waiting) {
+      transform: translateX(6px);
+    }
+  }
+
+  @keyframes reveal {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0);
+    }
+  }
+
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

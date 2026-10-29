@@ -1,0 +1,27 @@
+---
+// Local time in south-west France, next to the location. clock.ts fills it in and shows it:
+// without JavaScript it stays hidden.
+---
+
+<span data-clock hidden>
+  {" · "}
+  <span data-clock-hour></span>
+  <span class="colon">:</span>
+  <span data-clock-minute></span> <span data-clock-zone></span>
+</span>
+
+<script src="../../scripts/clock.ts"></script>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .colon {
+      animation: blink 2s steps(1, end) infinite;
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+</style>

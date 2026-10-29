@@ -1,0 +1,71 @@
+---
+// Layout of bramvanosta.com: one reading column, the page's <main> then the footer.
+import { PROFILE } from "../lib/profile.ts";
+import Base from "./Base.astro";
+import "../styles/home.css";
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+---
+
+<Base
+  title={title}
+  description={description}
+  siteName={PROFILE.name}
+  image="/og.png"
+  imageAlt="Bram van Osta, freelance full-stack developer in south-west France"
+  noindex={noindex}
+>
+  <slot name="head" slot="head" />
+  <div class="column">
+    <slot />
+    <footer>
+      <span>
+        © {new Date().getFullYear()} {PROFILE.name}
+      </span>
+      <span class="links">
+        <a href={PROFILE.github}>GitHub</a>
+        <a href={PROFILE.linkedin}>LinkedIn</a>
+      </span>
+    </footer>
+  </div>
+</Base>
+
+<style>
+  .column {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 112px 24px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  footer {
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .links {
+    display: flex;
+    gap: 20px;
+  }
+
+  @media (max-width: 600px) {
+    .column {
+      padding-top: 64px;
+      gap: 56px;
+    }
+  }
+</style>

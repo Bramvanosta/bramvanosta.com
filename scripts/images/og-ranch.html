@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ranch.bramvanosta.com social card</title>
+    <style>
+      @font-face {
+        font-family: "JetBrains Mono";
+        font-weight: 600;
+        src: url("../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2")
+          format("woff2");
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+      body {
+        position: relative;
+        box-sizing: border-box;
+        padding: 80px 88px;
+        background: #0f1012;
+        color: #ececee;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .mark {
+        border-radius: 16px;
+        outline: 1px solid #2a2c32;
+      }
+      .wordmark {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        font-size: 52px;
+      }
+      h1 {
+        margin: 56px 0 0;
+        max-width: 620px;
+        font-size: 58px;
+        line-height: 1.08;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+      .url {
+        position: absolute;
+        left: 88px;
+        bottom: 72px;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        font-size: 24px;
+        color: #f28c38;
+      }
+      /* Low enough that the card shows no AI client's name from the screenshot. */
+      .shot {
+        position: absolute;
+        left: 760px;
+        top: 330px;
+        width: 900px;
+        border-radius: 16px;
+        border: 1px solid #2a2c32;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="brand">
+      <img class="mark" src="../../public/ranch/favicon.svg" width="72" height="72" alt="" />
+      <span class="wordmark">ranch</span>
+    </div>
+    <h1>Your BullMQ queues in one window. Your AI agents on a leash.</h1>
+    <div class="url">ranch.bramvanosta.com</div>
+    <img class="shot" src="../../src/assets/ranch/screenshot-dark.png" alt="" />
+  </body>
+</html>

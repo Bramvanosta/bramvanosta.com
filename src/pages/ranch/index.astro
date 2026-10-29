@@ -1,0 +1,514 @@
+---
+import Icon, { type IconName } from "../../components/Icon.astro";
+import JsonLd from "../../components/JsonLd.astro";
+import AgentScene from "../../components/ranch/AgentScene.astro";
+import CopyCommand from "../../components/ranch/CopyCommand.astro";
+import RanchMark from "../../components/ranch/RanchMark.astro";
+import Screenshot from "../../components/ranch/Screenshot.astro";
+import RanchLayout from "../../layouts/Ranch.astro";
+import { PERSON } from "../../lib/profile.ts";
+import { RANCH } from "../../lib/ranch.ts";
+import { publicUrl } from "../../lib/sites.ts";
+
+const description =
+  "Desktop client for BullMQ on macOS and Linux. Find why jobs fail, retry safely on production, and let AI agents help, with your approval for every write.";
+
+const platforms: { icon: IconName; label: string }[] = [
+  { icon: "monitor", label: "macOS: Apple Silicon and Intel" },
+  { icon: "terminal", label: "Linux: deb, rpm, AppImage" },
+  { icon: "plug", label: "MCP server included" },
+];
+
+const features: { icon: IconName; title: string; text: string }[] = [
+  {
+    icon: "layers",
+    title: "Failures grouped by cause",
+    text: "Reasons that only differ by their values fold into one group, with its count, job types and last 24 hours. Retry or remove the whole group at once.",
+  },
+  {
+    icon: "lock",
+    title: "Safe on production",
+    text: "Read-only until you unlock it, a count and a confirmation before every destructive action, and every write in an audit log.",
+  },
+  {
+    icon: "file",
+    title: "Down to the job",
+    text: "Payload, options, progress, stack traces, logs, and its flow as a graph. Retry, promote or remove, also in bulk and across queues.",
+  },
+  {
+    icon: "link",
+    title: "Every way to reach Redis",
+    text: "redis:// and rediss:// URLs, TLS with a custom CA, SSH tunnels. Secrets stay in the OS keychain.",
+  },
+  {
+    icon: "shield",
+    title: "Writes are BullMQ-exact",
+    text: "Lua scripts ported from BullMQ’s own, proven in CI against real BullMQ 5.x and 6.x workers.",
+  },
+  {
+    icon: "command",
+    title: "⌘K or Ctrl+K reaches everything",
+    text: "Queues, connections, pages, actions and jobs by id, from one palette.",
+  },
+];
+
+// The illustration of per-connection access for agents.
+const modes = ["Read-only", "Ask", "Free"] as const;
+const access: { environment: string; mode: (typeof modes)[number] }[] = [
+  { environment: "local", mode: "Free" },
+  { environment: "staging", mode: "Ask" },
+  { environment: "production", mode: "Read-only" },
+];
+
+const site = publicUrl("/ranch/").href;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: "Ranch", url: site },
+    {
+      "@type": "SoftwareApplication",
+      name: "Ranch",
+      url: site,
+      description,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "macOS, Linux",
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+      license: "https://opensource.org/license/MIT",
+      downloadUrl: RANCH.releases,
+      image: publicUrl("/ranch/og.png").href,
+      sameAs: [RANCH.repo],
+      author: PERSON,
+    },
+  ],
+};
+---
+
+<RanchLayout title="Ranch: BullMQ queues in one window, AI agents on a leash" description={description}>
+  <JsonLd slot="head" data={structuredData} />
+  <main class="wrap" id="main">
+    <section class="hero">
+      <p class="pill">
+        Open source<span class="platforms-in-pill"> · macOS and Linux</span> · MIT license
+      </p>
+      <h1>Your BullMQ queues in one window. Your AI agents on a leash.</h1>
+      <p class="sub">
+        See what is waiting, running and failing, find why jobs fail, and retry or clean up safely, even on production.
+        The built-in MCP server lets your agents help: reads are free, writes wait for your approval.
+      </p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#install-macos">
+          <Icon name="download" size={18} strokeWidth={2} />
+          Install on macOS
+        </a>
+        <a class="btn" href="#install-linux">
+          Install on Linux
+        </a>
+      </div>
+      <CopyCommand command={RANCH.brew} />
+      <ul class="platforms">
+        {platforms.map((platform) => (
+          <li>
+            <Icon name={platform.icon} />
+            {platform.label}
+          </li>
+        ))}
+      </ul>
+      <AgentScene />
+    </section>
+
+    <section class="tour" aria-labelledby="tour-title">
+      <div class="head centered">
+        <p class="kicker">A closer look</p>
+        <h2 class="title" id="tour-title">
+          What needs you comes first
+        </h2>
+        <p class="lede">
+          Every connection in one window: live counters, failures grouped by cause, and what your agents did, as it
+          happens.
+        </p>
+      </div>
+      <Screenshot />
+    </section>
+
+    <section id="features" aria-labelledby="features-title">
+      <div class="head">
+        <p class="kicker">Why Ranch</p>
+        <h2 class="title" id="features-title">
+          Built for the queue that just broke
+        </h2>
+      </div>
+      <div class="grid">
+        {features.map((feature) => (
+          <div class="card">
+            <Icon name={feature.icon} size={22} class="feature-icon" />
+            <h3>{feature.title}</h3>
+            <p>{feature.text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section id="agents" class="agents" aria-labelledby="agents-title">
+      <div class="agents-text">
+        <p class="kicker">AI agents</p>
+        <h2 class="title" id="agents-title">
+          Reads are free. Writes wait for you.
+        </h2>
+        <p class="lede">Ranch ships an MCP server, ranch-mcp, set up in one click in the most common AI clients.</p>
+        <ul class="points">
+          <li>A write opens an approval in Ranch: what it would do, to how many jobs, the exact call.</li>
+          <li>Sensitive fields are masked by default before anything reaches the agent.</li>
+          <li>An agent that finds why jobs fail attaches its diagnosis to the cause.</li>
+          <li>Every write, yours and your agents’, lands in the audit log.</li>
+        </ul>
+      </div>
+      <figure
+        class="access"
+        role="img"
+        aria-label="Agent access is set per connection: free on local, ask on staging, read-only on production, with one switch for every AI feature."
+      >
+        <span class="access-path">Agents › Setup &amp; safety</span>
+        {access.map((row) => (
+          <span class="access-row">
+            <span>
+              <b>lumen-api</b> <span class="dim">{row.environment}</span>
+            </span>
+            <span class="modes">
+              {modes.map((mode) => (
+                <span class:list={{ on: mode === row.mode }}>{mode}</span>
+              ))}
+            </span>
+          </span>
+        ))}
+        <span class="access-row">
+          <span>Every AI feature</span>
+          <span class="switch"></span>
+        </span>
+      </figure>
+    </section>
+
+    <section id="install" aria-labelledby="install-title">
+      <div class="head">
+        <p class="kicker">Install</p>
+        <h2 class="title" id="install-title">
+          macOS, Linux, or a container
+        </h2>
+      </div>
+      <div class="install">
+        <div class="card" id="install-macos">
+          <h3>macOS</h3>
+          <p>One universal app for Apple Silicon and Intel. It updates itself, only when you click.</p>
+          <pre tabindex="0">{RANCH.brew}</pre>
+          <a class="more" href={RANCH.releases}>
+            Get the .dmg from the latest release <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="card" id="install-linux">
+          <h3>Linux</h3>
+          <p>x86_64. Needs a Secret Service provider: GNOME Keyring, KWallet or KeePassXC.</p>
+          <pre tabindex="0">{RANCH.linux}</pre>
+          <a class="more" href={RANCH.releases}>
+            Get the .deb, .rpm or AppImage from the latest release <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="card server">
+          <h3>Ranch server</h3>
+          <p>
+            The same UI over HTTP, for the places a desktop app does not go: next to a staging Redis, in a compose
+            stack, in a cluster.
+          </p>
+          <pre tabindex="0">{RANCH.server}</pre>
+          <a class="more" href={RANCH.serverGuide}>
+            Server guide: TLS, sign-in with OIDC, configuration <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing" aria-labelledby="closing-title">
+      <RanchMark size={44} />
+      <h2 class="title" id="closing-title">
+        Open your queues in Ranch
+      </h2>
+      <p>Free and open source, under the MIT license. For macOS and Linux, or as a server.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#install-macos">
+          Install on macOS
+        </a>
+        <a class="btn" href="#install-linux">
+          Install on Linux
+        </a>
+      </div>
+    </section>
+  </main>
+</RanchLayout>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .hero {
+    padding-top: 80px;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .pill {
+    padding: 4px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-family: var(--font-brand);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* The pill stays on one line on a phone; the platforms are listed under the buttons anyway. */
+  @media (max-width: 480px) {
+    .platforms-in-pill {
+      display: none;
+    }
+  }
+
+  h1 {
+    max-width: 900px;
+    font-size: clamp(36px, 20px + 3.4vw, 56px);
+    line-height: 1.06;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .sub {
+    max-width: 720px;
+    font-size: clamp(18px, 16px + 0.4vw, 20px);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .platforms {
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 28px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .platforms li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 680px;
+  }
+
+  .head.centered {
+    align-self: center;
+    align-items: center;
+    text-align: center;
+    max-width: 720px;
+  }
+
+  .lede {
+    font-size: 18px;
+    color: var(--muted);
+  }
+
+  .tour {
+    gap: 40px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 16px;
+  }
+
+  .card :global(.feature-icon) {
+    color: var(--accent-ink);
+  }
+
+  .agents {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 40px 56px;
+  }
+
+  .agents-text {
+    flex: 1 1 420px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .points {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .access {
+    flex: 1 1 380px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 24px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+
+  .access-path {
+    padding: 12px 0;
+    font-family: var(--font-code);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .access-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+  }
+
+  .dim {
+    color: var(--muted);
+  }
+
+  .modes {
+    display: inline-flex;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--bg);
+    font-size: 13px;
+  }
+
+  .modes span {
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: var(--muted);
+  }
+
+  .modes .on {
+    background: var(--ink);
+    color: var(--surface);
+    font-weight: 600;
+  }
+
+  /* A switch, on. */
+  .switch {
+    position: relative;
+    width: 40px;
+    height: 24px;
+    border-radius: 12px;
+    background: var(--accent);
+  }
+
+  .switch::after {
+    content: "";
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+  }
+
+  .install {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .install .card {
+    gap: 14px;
+  }
+
+  .install .server {
+    grid-column: 1 / -1;
+  }
+
+  .more {
+    align-self: flex-start;
+    padding: 10px 0;
+    margin-top: auto;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--accent-ink);
+    text-decoration: none;
+  }
+
+  .more:hover {
+    text-decoration: underline;
+  }
+
+  .closing {
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    padding: 64px 32px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+
+  .closing p {
+    max-width: 520px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 600px) {
+    main {
+      gap: 88px;
+    }
+
+    .hero {
+      padding-top: 48px;
+    }
+
+    .install {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .closing {
+      padding: 48px 20px;
+    }
+  }
+</style>

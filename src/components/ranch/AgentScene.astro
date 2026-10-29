@@ -1,0 +1,977 @@
+---
+// The hero animation: an agent asks, you approve in Ranch, the jobs run. CSS only.
+//
+// Everything runs on one 12 s loop (--loop-duration) that starts with the page, so the steps stay in step.
+// The timeline, in % of the loop:
+//   0–16   the agent asks; its bulk_retry_jobs call waits for approval
+//   17–21  the call shows up in Ranch, held
+//   26–35  the cursor moves to Approve; 37 it clicks; 39–44 the call is approved
+//   42–52  the failed jobs start, one every 4% (the failed count drops to 0)
+//   44–68  they run and complete
+//   69–73  the agent reports back; 87–91 the panels roll up, and reset while empty
+// Text never fades: it rolls in and out with clip-path, at full contrast at every frame.
+// The styles outside @keyframes are the last frame: what reduced motion shows.
+import Icon from "../Icon.astro";
+import RanchMark from "./RanchMark.astro";
+
+const jobs = [
+  { id: "#1204", name: "send-receipt" },
+  { id: "#1206", name: "weekly-digest" },
+  { id: "#1209", name: "password-reset" },
+];
+---
+
+<div class="demo">
+  <label class="pause">
+    <input type="checkbox" aria-label="Pause the animation" />
+    <Icon name="pause" size={12} strokeWidth={3} class="icon-pause" />
+    <Icon name="play" size={12} class="icon-play" />
+    <span class="when-playing" aria-hidden="true">
+      Pause animation
+    </span>
+    <span class="when-paused" aria-hidden="true">
+      Play animation
+    </span>
+  </label>
+  <div
+    class="scene"
+    role="img"
+    aria-label="Animation: an AI agent asks to retry three failed jobs in the emails queue. Ranch holds the call until you approve it, then the three jobs run and complete, and the agent reports back."
+  >
+    <div class="panels" aria-hidden="true">
+      <div class="panel">
+        <span class="focus focus-agent"></span>
+        <span class="step">
+          <b>1</b> Your agent asks
+        </span>
+        <div class="body">
+          <span class="who">
+            <Icon name="message" />
+            Your agent <span class="dim">· MCP</span>
+          </span>
+          <p class="bubble ask">Retry the failed jobs in emails.</p>
+          <p class="msg reply">Three jobs failed on the same cause, an SMTP timeout. I’ll retry them.</p>
+          <span class="call">
+            <span>bulk_retry_jobs · emails</span>
+            <span class="ticker">
+              <span class="roll call-state">
+                <span class="pending">
+                  <span class="dot"></span>waiting for approval
+                </span>
+                <span>
+                  <Icon name="check" size={12} strokeWidth={3} /> approved
+                </span>
+              </span>
+            </span>
+          </span>
+          <p class="msg report">Done. The 3 jobs completed.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <span class="focus focus-approval"></span>
+        <span class="step">
+          <b>2</b> You approve, in Ranch
+        </span>
+        <div class="body">
+          <span class="idle">No call waiting</span>
+          <div class="request">
+            <span class="request-head">
+              <RanchMark size={18} />
+              <span class="wordmark">ranch</span>
+              <span class="tag">Approval needed</span>
+            </span>
+            <p class="msg">Your agent wants to retry 3 failed jobs.</p>
+            <span class="detail">bulk_retry_jobs · emails · production</span>
+            <span class="detail">Cause: SMTP timeout · 3 jobs</span>
+            <span class="decision">
+              <span class="buttons">
+                <span class="button deny">Deny</span>
+                <span class="approve-wrap">
+                  <span class="button approve">Approve</span>
+                  <svg class="cursor" viewBox="0 0 24 24">
+                    <path
+                      d="M5 3 19 10l-6 1.6L10 18z"
+                      fill="#17181c"
+                      stroke="#ffffff"
+                      stroke-width="1.5"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+                </span>
+              </span>
+              <span class="approved">
+                <Icon name="check" size={14} strokeWidth={3} />
+                Approved <span class="dim">· in the audit log</span>
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <span class="focus focus-queue"></span>
+        <span class="step">
+          <b>3</b> Ranch runs it
+        </span>
+        <div class="body">
+          <span class="queue-head">
+            <strong>emails</strong>
+            <span class="lock">
+              <Icon name="lock" size={11} strokeWidth={2.2} /> production
+            </span>
+            <span class="failed-count">
+              <span class="ticker">
+                <span class="roll count">
+                  <span>3</span>
+                  <span>2</span>
+                  <span>1</span>
+                  <span>0</span>
+                </span>
+              </span>{" "}
+              failed
+            </span>
+          </span>
+          <span class="jobs">
+            {jobs.map((job) => (
+              <span class="job">
+                <span class="job-name">
+                  <span class="dim">{job.id}</span> {job.name}
+                </span>
+                <span class="ticker">
+                  <span class="roll job-state">
+                    <span class="failed">failed</span>
+                    <span>active</span>
+                    <span class="dim">completed</span>
+                  </span>
+                </span>
+                <span class="bar">
+                  <span class="job-failure" />
+                  <span class="job-progress" />
+                </span>
+              </span>
+            ))}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .demo {
+    width: 100%;
+    max-width: 1056px;
+    margin: 16px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+  }
+
+  /* Three panels side by side, two over one on a tablet, stacked on a phone. */
+  .panels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    font-family: var(--font-code);
+  }
+
+  @media (max-width: 900px) {
+    .panels {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .panel:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .panels {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 290px;
+    padding: 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px -36px rgba(0, 0, 0, 0.45);
+  }
+
+  /* What changes in a panel; its step label stays. */
+  .body {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .focus {
+    position: absolute;
+    inset: -1px;
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .step b {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .dim {
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .bubble,
+  .msg {
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+
+  .bubble {
+    align-self: flex-end;
+    max-width: 85%;
+    padding: 8px 12px;
+    border-radius: 12px 12px 4px 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    line-height: 1.45;
+  }
+
+  .call {
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    font-size: 12.5px;
+  }
+
+  /* A ticker shows one line of a column and rolls it up, one --tick at a time, to change state. */
+  .ticker {
+    --tick: 22px;
+    display: block;
+    height: var(--tick);
+    overflow: hidden;
+  }
+
+  .failed-count .ticker {
+    --tick: 20px;
+  }
+
+  .roll {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .roll > span {
+    height: var(--tick);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .pending,
+  .failed,
+  .failed-count,
+  .tag {
+    color: var(--accent-ink);
+    font-weight: 600;
+  }
+
+  .dot {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .idle {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 40%;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .request {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .request-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .request-head .wordmark {
+    font-size: 15px;
+  }
+
+  .tag {
+    margin-left: auto;
+    padding: 1px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 12px;
+  }
+
+  .detail {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .decision {
+    position: relative;
+    display: block;
+    height: 40px;
+    margin-top: 4px;
+  }
+
+  .buttons,
+  .approved {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .buttons {
+    gap: 8px;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .deny {
+    border: 1px solid var(--line);
+  }
+
+  .approve-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .approve {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .cursor {
+    position: absolute;
+    left: 58%;
+    top: 52%;
+    width: 18px;
+    height: 18px;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+  }
+
+  .approved {
+    height: 36px;
+    gap: 8px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  .queue-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .lock {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .failed-count {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+  }
+
+  .jobs {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .job {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 92px;
+    align-items: center;
+    gap: 6px 12px;
+    padding: 10px 0 2px;
+    border-top: 1px solid var(--line);
+  }
+
+  .job-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .job .ticker {
+    font-size: 12.5px;
+  }
+
+  .bar {
+    grid-column: 1 / -1;
+    position: relative;
+    display: block;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--track);
+    overflow: hidden;
+  }
+
+  .bar span {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px;
+    transform-origin: left center;
+  }
+
+  .job-failure {
+    background: var(--accent);
+    transform: scaleX(0.62);
+  }
+
+  .job-progress {
+    background: var(--ink);
+  }
+
+  /* The last frame. */
+  .idle,
+  .buttons,
+  .tag {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  .cursor,
+  .job-failure {
+    opacity: 0;
+  }
+
+  .call-state {
+    transform: translateY(calc(-1 * var(--tick)));
+  }
+
+  .job-state {
+    transform: translateY(calc(-2 * var(--tick)));
+  }
+
+  .count {
+    transform: translateY(calc(-3 * var(--tick)));
+  }
+
+  /* The loop. */
+  .panels {
+    --loop-duration: 12s;
+    --loop: var(--loop-duration) linear infinite;
+  }
+
+  .body {
+    animation: body var(--loop);
+  }
+
+  .focus-agent {
+    animation: focus-agent var(--loop);
+  }
+
+  .focus-approval {
+    animation: focus-approval var(--loop);
+  }
+
+  .focus-queue {
+    animation: focus-queue var(--loop);
+  }
+
+  .ask {
+    animation: ask var(--loop);
+  }
+
+  .reply {
+    animation: reply var(--loop);
+  }
+
+  .call {
+    animation: call var(--loop);
+  }
+
+  .call-state {
+    animation: call-state var(--loop);
+  }
+
+  .report {
+    animation: report var(--loop);
+  }
+
+  .idle {
+    animation: idle var(--loop);
+  }
+
+  .request {
+    animation: request var(--loop);
+  }
+
+  .buttons,
+  .tag {
+    animation: decide var(--loop);
+  }
+
+  .approve {
+    animation: press var(--loop);
+  }
+
+  .cursor {
+    animation: cursor var(--loop);
+  }
+
+  .approved {
+    animation: approved var(--loop);
+  }
+
+  .count {
+    animation: count var(--loop);
+  }
+
+  /* The job keyframes time the last job. Each job starts 4% of the loop before the next one:
+     a negative delay puts it that far ahead, per job after it. */
+  .job {
+    --jobs-after: 0;
+    --ahead: calc(var(--jobs-after) * var(--loop-duration) * -0.04);
+  }
+
+  .job:nth-last-child(2) {
+    --jobs-after: 1;
+  }
+
+  .job:nth-last-child(3) {
+    --jobs-after: 2;
+  }
+
+  .job-state {
+    animation: job-state var(--loop) var(--ahead);
+  }
+
+  .job-failure {
+    animation: job-failure var(--loop) var(--ahead);
+  }
+
+  .job-progress {
+    animation: job-progress var(--loop) var(--ahead);
+  }
+
+  @keyframes body {
+    0% {
+      clip-path: inset(0 0 100% 0);
+    }
+    3%,
+    87% {
+      clip-path: inset(0);
+    }
+    91%,
+    100% {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  @keyframes focus-agent {
+    0% {
+      opacity: 0;
+    }
+    3%,
+    16% {
+      opacity: 1;
+    }
+    18%,
+    69% {
+      opacity: 0;
+    }
+    71%,
+    86% {
+      opacity: 1;
+    }
+    88%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes focus-approval {
+    0%,
+    17% {
+      opacity: 0;
+    }
+    19%,
+    41% {
+      opacity: 1;
+    }
+    43%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes focus-queue {
+    0%,
+    42% {
+      opacity: 0;
+    }
+    44%,
+    67% {
+      opacity: 1;
+    }
+    69%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes ask {
+    0% {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(6px);
+    }
+    4%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes reply {
+    0%,
+    7% {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(6px);
+    }
+    11%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes call {
+    0%,
+    12% {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(6px);
+    }
+    16%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes call-state {
+    0%,
+    39% {
+      transform: none;
+    }
+    41%,
+    100% {
+      transform: translateY(calc(-1 * var(--tick)));
+    }
+  }
+
+  @keyframes report {
+    0%,
+    69% {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(6px);
+    }
+    73%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes idle {
+    0%,
+    16% {
+      clip-path: inset(0);
+    }
+    18%,
+    100% {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  @keyframes request {
+    0%,
+    17% {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(8px);
+    }
+    21%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes decide {
+    0%,
+    40% {
+      clip-path: inset(0);
+    }
+    42%,
+    100% {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  @keyframes press {
+    0%,
+    36.5% {
+      transform: none;
+    }
+    37.5% {
+      transform: scale(0.93);
+    }
+    39%,
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes cursor {
+    0%,
+    24% {
+      opacity: 0;
+      transform: translate(46px, 38px);
+    }
+    26% {
+      opacity: 1;
+      transform: translate(46px, 38px);
+      animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    }
+    35% {
+      opacity: 1;
+      transform: none;
+    }
+    37% {
+      opacity: 1;
+      transform: scale(0.85);
+    }
+    38.5% {
+      opacity: 1;
+      transform: none;
+    }
+    40%,
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  @keyframes approved {
+    0%,
+    41% {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(4px);
+    }
+    44%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes count {
+    0%,
+    42% {
+      transform: none;
+    }
+    44%,
+    46% {
+      transform: translateY(calc(-1 * var(--tick)));
+    }
+    48%,
+    50% {
+      transform: translateY(calc(-2 * var(--tick)));
+    }
+    52%,
+    100% {
+      transform: translateY(calc(-3 * var(--tick)));
+    }
+  }
+
+  /* The last job: it starts at 50% and completes at 68%. */
+  @keyframes job-state {
+    0%,
+    50% {
+      transform: none;
+    }
+    52%,
+    66% {
+      transform: translateY(calc(-1 * var(--tick)));
+    }
+    68%,
+    100% {
+      transform: translateY(calc(-2 * var(--tick)));
+    }
+  }
+
+  @keyframes job-failure {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    52%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes job-progress {
+    0%,
+    52% {
+      transform: scaleX(0);
+    }
+    66%,
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes pulse {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  /* Moving content that loops needs a way to stop it, placed before it: a checkbox does it
+     without JavaScript. Its accessible name stays "Pause the animation"; checked means paused. */
+  .pause {
+    align-self: flex-end;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .pause:hover {
+    color: var(--ink);
+  }
+
+  .pause:has(:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .pause input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .when-paused,
+  .pause :global(.icon-play),
+  .pause:has(:checked) .when-playing,
+  .pause:has(:checked) :global(.icon-pause) {
+    display: none;
+  }
+
+  .pause:has(:checked) .when-paused {
+    display: inline;
+  }
+
+  .pause:has(:checked) :global(.icon-play) {
+    display: block;
+  }
+
+  .demo:has(.pause :checked) .panels * {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panels * {
+      animation: none;
+    }
+
+    .pause {
+      display: none;
+    }
+  }
+</style>

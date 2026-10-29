@@ -1,0 +1,63 @@
+/* bramvanosta.com: plain text in one colour, one accent kept for the small details. */
+:root {
+  --bg: #ffffff;
+  --ink: #111113;
+  --muted: #5b5b62;
+  --line: #e6e6ea;
+  --rule: #b9b9c0;
+  --accent: #b9560b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111113;
+    --ink: #ececef;
+    --muted: #a3a3ab;
+    --line: #2b2b31;
+    --rule: #5b5b63;
+    --accent: #f28c38;
+  }
+}
+
+h1 {
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a {
+    transition:
+      text-decoration-color 0.2s ease,
+      text-decoration-thickness 0.2s ease,
+      text-underline-offset 0.2s ease;
+  }
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Small monospace text: section labels, metadata. */
+.label {
+  font-family: var(--font-code);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}

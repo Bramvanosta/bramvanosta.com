@@ -1,0 +1,139 @@
+/* ranch.bramvanosta.com: Ranch's own graphite and orange. Shared by its pages and components.
+   Breakpoints: 900px (tablet), 600px (phone), 480px (small phone). */
+:root {
+  --bg: #f5f5f6;
+  --surface: #ffffff;
+  --ink: #17181c;
+  --muted: #5a5c64;
+  --line: #e0e1e5;
+  --track: #e9eaed;
+  /* --accent fills buttons; --accent-ink is the same orange, darker, for text on the light ground. */
+  --accent: #b9560b;
+  --accent-hover: #a84d08;
+  --accent-ink: #a84d08;
+  --on-accent: #ffffff;
+  --code: #17181c;
+  --code-ink: #ececee;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1012;
+    --surface: #17181c;
+    --ink: #ececee;
+    --muted: #9c9fa7;
+    --line: #2a2c32;
+    --track: #26282e;
+    --accent: #f28c38;
+    --accent-hover: #f6a35f;
+    --accent-ink: #f28c38;
+    --on-accent: #17181c;
+    --code: #0b0c0e;
+    --code-ink: #ececee;
+  }
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: var(--accent-ink);
+}
+
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+@media (max-width: 600px) {
+  .wrap {
+    padding: 0 20px;
+  }
+}
+
+.wordmark,
+.kicker {
+  font-family: var(--font-brand);
+  font-weight: 600;
+}
+
+.kicker {
+  font-size: 14px;
+  color: var(--accent-ink);
+}
+
+.title {
+  font-size: clamp(30px, 22px + 1.6vw, 38px);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 650;
+  font-size: 16px;
+}
+
+.btn:hover {
+  color: var(--ink);
+  border-color: var(--muted);
+}
+
+.btn-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn-primary:hover {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+  color: var(--on-accent);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.card h3 {
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.card p {
+  font-size: 16px;
+  color: var(--muted);
+}
+
+pre,
+code {
+  font-family: var(--font-code);
+}
+
+pre {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--code);
+  color: var(--code-ink);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+}

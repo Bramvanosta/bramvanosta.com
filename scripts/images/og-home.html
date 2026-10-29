@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>bramvanosta.com social card</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+      body {
+        box-sizing: border-box;
+        padding: 88px 96px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: #ffffff;
+        color: #111113;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .mono {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 24px;
+        color: #5b5b62;
+      }
+      h1 {
+        margin: 0 0 24px;
+        font-size: 92px;
+        line-height: 1.05;
+        font-weight: 650;
+        letter-spacing: -0.03em;
+      }
+      p {
+        margin: 0;
+        font-size: 40px;
+        line-height: 1.35;
+        max-width: 980px;
+      }
+      .flourish {
+        position: relative;
+        display: inline-block;
+        font-family: ui-serif, "New York", Georgia, serif;
+        font-style: italic;
+      }
+      .flourish svg {
+        position: absolute;
+        left: -2%;
+        bottom: -10px;
+        width: 104%;
+        height: 18px;
+        overflow: visible;
+      }
+      .flourish path {
+        fill: none;
+        stroke: #b9560b;
+        stroke-width: 3.5;
+        stroke-linecap: round;
+      }
+      .rule {
+        height: 1px;
+        background: #e6e6ea;
+        margin-bottom: 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>Bram van Osta</h1>
+      <p>
+        Freelance full-stack developer. I build web and desktop apps,
+        <span class="flourish"
+          >and help teams ship them.<svg viewBox="0 0 200 12" preserveAspectRatio="none">
+            <path d="M3 8.5C38 4 78 3.5 112 5.5S170 9.5 197 4.5"></path></svg
+        ></span>
+      </p>
+    </div>
+    <div>
+      <div class="rule"></div>
+      <div class="mono">South-west France · bramvanosta.com</div>
+    </div>
+  </body>
+</html>

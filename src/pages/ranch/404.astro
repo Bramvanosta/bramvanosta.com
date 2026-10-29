@@ -1,0 +1,28 @@
+---
+import RanchLayout from "../../layouts/Ranch.astro";
+import { link } from "../../lib/links.ts";
+---
+
+<RanchLayout title="Page not found · Ranch" description="This page does not exist." noindex>
+  <main class="wrap" id="main">
+    <p class="kicker">404</p>
+    <h1 class="title">This page does not exist.</h1>
+    <a class="btn" href={link("/ranch/", Astro.url.pathname)}>
+      Back to Ranch
+    </a>
+  </main>
+</RanchLayout>
+
+<style>
+  main {
+    padding-top: 112px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .btn {
+    margin-top: 8px;
+  }
+</style>

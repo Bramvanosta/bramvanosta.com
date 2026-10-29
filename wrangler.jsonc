@@ -1,0 +1,21 @@
+{
+  // One Worker serves every site from the static build in dist/:
+  // the apex as built, and each subsite from dist/<subsite>/ (see worker/index.ts).
+  // No Astro adapter: the pages are prerendered, the Worker only routes by host.
+  "name": "bramvanosta",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "404-page",
+  },
+  "workers_dev": false,
+  // One custom domain per host. Adding a subsite: see the README.
+  "routes": [
+    { "pattern": "bramvanosta.com", "custom_domain": true },
+    { "pattern": "www.bramvanosta.com", "custom_domain": true },
+    { "pattern": "ranch.bramvanosta.com", "custom_domain": true },
+  ],
+}
