@@ -80,19 +80,19 @@ Every push to `main` is checked, built and deployed with `wrangler deploy` by `.
 
 ### First-time setup
 
-These steps move the domain’s DNS from OVH to Cloudflare. Nothing in this repository needs a secret: the two values below live in the GitHub repository settings only.
+These steps move the domain’s DNS from OVH to Cloudflare without a moment offline: the old OVH web redirect keeps answering until the Worker takes its place. Nothing in this repository needs a secret: the two values below live in the GitHub repository settings only.
 
 1. **Add the zone to Cloudflare.**
    - In the dashboard, choose _Add a domain_, enter `bramvanosta.com` and pick the Free plan.
    - Cloudflare imports the current records. Before going further, check that the mail records (MX) and the verification TXT records came along. Recreate any that is missing, with the value shown at OVH.
-2. **Remove OVH’s web redirect from the new zone**: the `A` record on the apex that points to OVH’s redirect service, the matching `www` record if there is one, and the TXT record starting with `4|`. The Worker takes over these names.
-3. **Switch the nameservers at OVH.**
+2. **Switch the nameservers at OVH.**
    - If DNSSEC is on at OVH, turn it off first.
    - In _Domain names › bramvanosta.com › DNS servers_, replace OVH’s servers with the two Cloudflare gives.
-   - Wait until Cloudflare shows the zone as _Active_.
-4. **Create an API token in Cloudflare** (_My Profile › API Tokens_) from the _Edit Cloudflare Workers_ template, limited to this account and the `bramvanosta.com` zone. If the first deploy fails while creating the custom domains, add _Zone › DNS › Edit_ to it.
-5. **Add two repository secrets on GitHub** (_Settings › Secrets and variables › Actions_): `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` (shown on the account’s home page in the dashboard).
-6. **Deploy**: push to `main`, or run the workflow by hand. Wrangler creates the Worker and attaches `bramvanosta.com`, `www.bramvanosta.com` and `ranch.bramvanosta.com` to it as custom domains, with their DNS records and certificates.
+   - Wait until Cloudflare shows the zone as _Active_: from a few minutes to a day. Mail and the old redirect keep working meanwhile.
+3. **Create an API token in Cloudflare** (_My Profile › API Tokens_) from the _Edit Cloudflare Workers_ template, limited to this account and the `bramvanosta.com` zone. If the first deploy fails while creating the custom domains, add _Zone › DNS › Edit_ to it.
+4. **Add two repository secrets on GitHub** (_Settings › Secrets and variables › Actions_): `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` (shown on the account’s home page in the dashboard). From now on, every push to `main` deploys.
+5. **Remove OVH’s web redirect from the zone**, right before deploying: the `A` record on the apex that points to OVH’s redirect service, the matching `www` record if there is one, and the TXT record starting with `4|`. A custom domain cannot be attached over them.
+6. **Deploy**: in GitHub, _Actions › Deploy › Run workflow_ on `main`. Wrangler creates the Worker and attaches `bramvanosta.com`, `www.bramvanosta.com` and `ranch.bramvanosta.com` to it as custom domains, with their DNS records and certificates.
 7. **Check every host**:
    - `https://bramvanosta.com` and `https://ranch.bramvanosta.com` answer;
    - `https://www.bramvanosta.com`, `http://bramvanosta.com` and `https://bramvanosta.com/ranch/` redirect;
