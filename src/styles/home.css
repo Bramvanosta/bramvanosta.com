@@ -1,43 +1,47 @@
-/* bramvanosta.com: plain text in one colour, one accent kept for the small details. */
+/* bramvanosta.com, in the Bram van Osta design system: Delft blue to act, vermillion for the rare
+   detail that calls for attention, ink for the text. Token names are the design system's. */
 :root {
   --bg: #ffffff;
-  --ink: #111113;
-  --muted: #5b5b62;
-  --line: #e6e6ea;
-  --rule: #b9b9c0;
-  --accent: #b9560b;
+  --line: #e5e5e5;
+  --ink: #111111;
+  --ink-muted: #5f5f5f;
+  --delft: #2350a0;
+  --on-delft: #ffffff;
+  --vermillion: #d93b1f;
+  --tulip-flower: var(--vermillion);
+  --tulip-stem: var(--delft);
+  --focus: var(--delft);
+  --font-sans: var(--font-inter);
+  --font-code: var(--font-plex-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #111113;
-    --ink: #ececef;
-    --muted: #a3a3ab;
-    --line: #2b2b31;
-    --rule: #5b5b63;
-    --accent: #f28c38;
+    --bg: #111111;
+    --line: #2c2c2c;
+    --ink: #f2f2f2;
+    --ink-muted: #a6a6a6;
+    --delft: #7fa0e0;
+    --on-delft: #111111;
+    --vermillion: #ec5a3c;
   }
 }
 
-h1 {
-  font-size: 30px;
-  line-height: 1.2;
-  font-weight: 650;
-  letter-spacing: -0.02em;
+body {
+  font-size: 16px;
 }
 
 a {
   color: inherit;
   text-decoration-line: underline;
-  text-decoration-color: var(--rule);
   text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-underline-offset: 4px;
 }
 
 a:hover {
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--delft);
   text-decoration-thickness: 2px;
-  text-underline-offset: 5px;
+  text-underline-offset: 6px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -49,15 +53,42 @@ a:hover {
   }
 }
 
-::selection {
-  background: var(--accent);
-  color: var(--bg);
+:focus-visible {
+  outline-offset: 2px;
 }
 
-/* Small monospace text: section labels, metadata. */
-.label {
+::selection {
+  background: var(--delft);
+  color: var(--on-delft);
+}
+
+/* Above a section, in vermillion: the design system's "surtitre". */
+.kicker {
   font-family: var(--font-code);
   font-size: 13px;
+  line-height: 1.4;
   font-weight: 400;
-  color: var(--muted);
+  color: var(--vermillion);
+}
+
+/* Small monospace text: the location, a project's stack. */
+.meta {
+  font-family: var(--font-code);
+  font-size: 12px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+/* A row of links, each 44 px high to tap. */
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+}
+
+.links a {
+  display: inline-block;
+  padding: 10px 0;
+  line-height: 24px;
 }

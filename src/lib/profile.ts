@@ -1,4 +1,4 @@
-// Who the sites are by, and where to reach him. Public facts only: this repository is public.
+// Who makes the sites, and how to get in touch. Public facts only: this repository is public.
 import { publicUrl } from "./sites.ts";
 
 export const PROFILE = {

@@ -1,8 +1,9 @@
 The code in this repository is released under the MIT License below.
 
 The written content, the images and the logos are not: © Bram van Osta, all rights
-reserved. JetBrains Mono, in src/assets/fonts/, is under the SIL Open Font License 1.1
-(src/assets/fonts/OFL.txt).
+reserved. The fonts in src/assets/fonts/ (JetBrains Mono, Inter, Inter Tight, IBM Plex
+Mono, Newsreader) are under the SIL Open Font License 1.1, each with its license beside it
+(src/assets/fonts/<font>-OFL.txt).
 
 MIT License
 

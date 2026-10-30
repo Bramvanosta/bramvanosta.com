@@ -1,10 +1,12 @@
 // @ts-check
 // Renders the committed images of every site in public/ (npm run images):
-// - favicon.ico (32 px) and apple-touch-icon.png (180 px) from the site's favicon.svg, with sharp;
+// - favicon.ico (32 px) from the site's favicon.svg, with sharp;
+// - apple-touch-icon.png (180 px) from touch-icon-<site>.svg beside this script, or else from the
+//   favicon, with sharp;
 // - og.png, the social card, from og-<site>.html beside this script, with headless Chrome.
 // CHROME can point to another Chrome or Chromium binary.
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,8 +18,8 @@ const here = fileURLToPath(new URL(".", import.meta.url));
 const chrome = process.env.CHROME ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
 const sites = [
-  { folder: "public", card: "og-home.html" },
-  ...SUBSITES.map((subsite) => ({ folder: `public/${subsite}`, card: `og-${subsite}.html` })),
+  { name: "home", folder: "public" },
+  ...SUBSITES.map((subsite) => ({ name: subsite, folder: `public/${subsite}` })),
 ];
 
 /**
@@ -40,13 +42,17 @@ function ico(png, size) {
 
 const scratch = mkdtempSync(join(tmpdir(), "og-"));
 try {
-  for (const { folder, card } of sites) {
+  for (const { name, folder } of sites) {
     const favicon = readFileSync(join(root, folder, "favicon.svg"));
     const small = await sharp(favicon, { density: 300 }).resize(32, 32).png().toBuffer();
     writeFileSync(join(root, folder, "favicon.ico"), ico(small, 32));
 
-    // A touch icon is a full-bleed square: iOS rounds its corners itself, so the tile drops its own.
-    const square = Buffer.from(favicon.toString("utf8").replace(/ rx="[\d.]+"/, ""));
+    // A touch icon is a full-bleed square: iOS rounds its corners itself. A site without its own
+    // drawing takes its favicon, a tile that drops its corners.
+    const own = join(here, `touch-icon-${name}.svg`);
+    const square = existsSync(own)
+      ? readFileSync(own)
+      : Buffer.from(favicon.toString("utf8").replace(/ rx="[\d.]+"/, ""));
     await sharp(square, { density: 600 })
       .resize(180, 180)
       .png()
@@ -62,7 +68,7 @@ try {
         "--force-device-scale-factor=1",
         "--window-size=1200,630",
         `--screenshot=${shot}`,
-        `file://${join(here, card)}`,
+        `file://${join(here, `og-${name}.html`)}`,
       ],
       // Quiet when it works; a failure throws with Chrome's output.
       { stdio: "pipe" },

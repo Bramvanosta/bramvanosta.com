@@ -2,6 +2,19 @@
 import { defineConfig, fontProviders } from "astro/config";
 import { siteFiles } from "./src/lib/site-files.ts";
 
+/**
+ * A weight of a self-hosted font, no font CDN: the subset that npm run font cuts from Fontsource's file.
+ * @param {string} file
+ * @param {number} weight
+ */
+const subset = (file, weight) => ({
+  weight,
+  style: /** @type {const} */ ("normal"),
+  src: /** @type {[string]} */ ([`./src/assets/fonts/${file}-${weight}-subset.woff2`]),
+});
+
+const local = fontProviders.local();
+
 // https://astro.build/config
 // Fully static: the Worker in worker/ serves dist/ and routes each host to its folder.
 export default defineConfig({
@@ -13,21 +26,43 @@ export default defineConfig({
   // or a data: URI. Stylesheets are inlined on purpose (inlineStylesheets above, style-src 'unsafe-inline').
   vite: { build: { assetsInlineLimit: 0 } },
   fonts: [
+    // Ranch's wordmark and labels.
     {
-      // Ranch's wordmark and labels: a subset of the Fontsource file (npm run font), self-hosted, no font CDN.
-      provider: fontProviders.local(),
+      provider: local,
       name: "JetBrains Mono",
       cssVariable: "--font-brand",
       fallbacks: ["monospace"],
-      options: {
-        variants: [
-          {
-            weight: 600,
-            style: "normal",
-            src: ["./src/assets/fonts/jetbrains-mono-600-subset.woff2"],
-          },
-        ],
-      },
+      options: { variants: [subset("jetbrains-mono", 600)] },
+    },
+    // The home page, from the Bram van Osta design system: Inter for the text, IBM Plex Mono for the
+    // labels, Newsreader for the name in the logo, Inter Tight for the 404 title.
+    {
+      provider: local,
+      name: "Inter",
+      cssVariable: "--font-inter",
+      fallbacks: ["Helvetica", "Arial", "sans-serif"],
+      options: { variants: [subset("inter", 400), subset("inter", 600)] },
+    },
+    {
+      provider: local,
+      name: "IBM Plex Mono",
+      cssVariable: "--font-plex-mono",
+      fallbacks: ["Menlo", "Courier", "monospace"],
+      options: { variants: [subset("ibm-plex-mono", 400)] },
+    },
+    {
+      provider: local,
+      name: "Newsreader",
+      cssVariable: "--font-newsreader",
+      fallbacks: ["Georgia", "serif"],
+      options: { variants: [subset("newsreader", 500)] },
+    },
+    {
+      provider: local,
+      name: "Inter Tight",
+      cssVariable: "--font-inter-tight",
+      fallbacks: ["Helvetica", "Arial", "sans-serif"],
+      options: { variants: [subset("inter-tight", 700)] },
     },
   ],
   integrations: [siteFiles()],

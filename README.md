@@ -45,8 +45,9 @@ npm run preview    # build, then serve dist/ through the Worker
 
 Each site’s icons (`favicon.ico`, `apple-touch-icon.png`) and social card (`og.png`) are committed in `public/`. Render them again after changing what they are made from:
 
-- the site’s `favicon.svg`, for the icons;
-- its card, `scripts/images/og-<site>.html`, which also uses JetBrains Mono from `node_modules` and, for Ranch, the screenshot in `src/assets/ranch/`.
+- the site’s `favicon.svg`, for `favicon.ico`;
+- `scripts/images/touch-icon-<site>.svg` for `apple-touch-icon.png`, or the favicon when the site has none (the home page’s is the tile of the Bram van Osta design system, with the square corners iOS expects);
+- its card, `scripts/images/og-<site>.html`, which also uses the fonts from `node_modules` and, for Ranch, the screenshot in `src/assets/ranch/`.
 
 ```bash
 npm run images
@@ -54,9 +55,14 @@ npm run images
 
 sharp draws the icons, headless Chrome takes the cards. The script looks for Chrome where macOS installs it; set `CHROME` to use another Chrome or Chromium binary.
 
-### Font
+### Fonts
 
-Ranch’s wordmark and labels use JetBrains Mono 600, cut down to printable ASCII and a little punctuation (`src/assets/fonts/`, about 9 KB). Before using it for another character, render the subset again:
+Every font is self-hosted, cut down from its Fontsource file to the characters the pages use (`src/assets/fonts/`, under 9 KB each):
+
+- the home page follows the Bram van Osta design system: Inter 400 and 600 for the text, IBM Plex Mono 400 for the labels, Newsreader 500 for the name in the logo (its letters only), Inter Tight 700 for the 404 title;
+- Ranch’s wordmark and labels use JetBrains Mono 600; the rest of its pages use the system fonts.
+
+The text fonts hold printable ASCII and a little punctuation. Before using a font for another character, add it in `scripts/fonts/subset.mjs` and render the subsets again:
 
 ```bash
 npm run font
@@ -101,4 +107,4 @@ These steps move the domain’s DNS from OVH to Cloudflare without a moment offl
 
 ## License
 
-The code is under the [MIT License](LICENSE). The written content, the images and the logos are © Bram van Osta, all rights reserved. [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) is under the [SIL Open Font License 1.1](src/assets/fonts/OFL.txt).
+The code is under the [MIT License](LICENSE). The written content, the images and the logos are © Bram van Osta, all rights reserved. The fonts are under the SIL Open Font License 1.1, each with its license in `src/assets/fonts/`: [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono), [Inter](https://github.com/rsms/inter), [Inter Tight](https://github.com/rsms/inter-tight), [IBM Plex Mono](https://github.com/IBM/plex), [Newsreader](https://github.com/productiontype/Newsreader).

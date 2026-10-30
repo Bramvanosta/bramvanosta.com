@@ -1,12 +1,14 @@
 ---
+import { Font } from "astro:assets";
 import HomeLayout from "../layouts/Home.astro";
 import { link } from "../lib/links.ts";
 import { PROFILE } from "../lib/profile.ts";
 ---
 
 <HomeLayout title="Page not found · Bram van Osta" description="This page does not exist." noindex>
+  <Font cssVariable="--font-inter-tight" preload slot="head" />
   <main>
-    <p class="label">404</p>
+    <p class="kicker">404</p>
     <h1>This page does not exist.</h1>
     <p>
       <a href={link("/", Astro.url.pathname)}>Back to {PROFILE.name}’s home page</a>
@@ -19,5 +21,20 @@ import { PROFILE } from "../lib/profile.ts";
     display: flex;
     flex-direction: column;
     gap: 16px;
+  }
+
+  /* A title of the design system: Inter Tight 700, 40 px, 28 on a phone. */
+  h1 {
+    font-family: var(--font-inter-tight);
+    font-size: 40px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 28px;
+    }
   }
 </style>

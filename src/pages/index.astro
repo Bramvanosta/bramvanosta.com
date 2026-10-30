@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import Clock from "../components/home/Clock.astro";
+import Tulip from "../components/home/Tulip.astro";
 import JsonLd from "../components/JsonLd.astro";
 import RanchMark from "../components/ranch/RanchMark.astro";
 import HomeLayout from "../layouts/Home.astro";
@@ -65,9 +66,12 @@ const structuredData = {
   <JsonLd slot="head" data={structuredData} />
   <main>
     <header class="intro">
-      <div>
-        <h1>{PROFILE.name}</h1>
-        <p class="label meta">
+      <div class="name">
+        <h1 class="logo">
+          <Tulip />
+          {PROFILE.name}
+        </h1>
+        <p class="meta">
           {PROFILE.location}
           <Clock />
         </p>
@@ -93,7 +97,7 @@ const structuredData = {
     </header>
 
     <section aria-labelledby="work">
-      <h2 class="label" id="work">
+      <h2 class="kicker" id="work">
         <span aria-hidden="true">01</span> Work
       </h2>
       <div class="entries">
@@ -107,13 +111,13 @@ const structuredData = {
       <p>
         Want to work together? Write to <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>, or{" "}
         <a href={PROFILE.linkedin}>
-          message me on LinkedIn <span aria-hidden="true">↗</span>
+          message me on LinkedIn&nbsp;<span aria-hidden="true">↗</span>
         </a>
       </p>
     </section>
 
     <section aria-labelledby="projects">
-      <h2 class="label" id="projects">
+      <h2 class="kicker" id="projects">
         <span aria-hidden="true">02</span> Projects
       </h2>
       <div class="entries">
@@ -126,8 +130,8 @@ const structuredData = {
               </a>
             </h3>
             <p class="text">{project.summary}</p>
-            {project.stack.length > 0 && <p class="label">{project.stack.join(" · ")}</p>}
-            <p class="links small">
+            {project.stack.length > 0 && <p class="meta">{project.stack.join(" · ")}</p>}
+            <p class="links">
               <a href={project.href}>
                 {project.host} <span aria-hidden="true">→</span>
               </a>
@@ -148,7 +152,7 @@ const structuredData = {
   main {
     display: flex;
     flex-direction: column;
-    gap: 64px;
+    gap: 72px;
   }
 
   .intro {
@@ -157,23 +161,45 @@ const structuredData = {
     gap: 16px;
   }
 
-  .meta {
-    margin-top: 4px;
+  .name {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* The logo, as the design system draws it: the tulip at 1.4 times the text size (--s), 0.3 times
+     apart, the name in Newsreader at 1.06 times. */
+  .logo {
+    --s: 28px;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--s) * 0.3);
+    font-family: var(--font-newsreader);
+    font-size: calc(var(--s) * 1.06);
+    line-height: 1;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  /* Centred on the line box, the tulip would sit 0.12 s below the middle of the capitals. */
+  .logo :global(svg) {
+    flex-shrink: 0;
+    width: calc(var(--s) * 1.4);
+    height: calc(var(--s) * 1.4);
+    transform: translateY(calc(var(--s) * -0.12));
   }
 
   .lead {
-    font-size: 20px;
-    line-height: 1.5;
+    font-size: 18px;
+    color: var(--ink-muted);
   }
 
-  /* The flourish: an orange stroke under the end of the sentence. It is revealed once the page
-     loads, and drawn again when the sentence is hovered. */
+  /* The flourish: the end of the sentence in ink, with a vermillion stroke under it. The stroke is
+     revealed once the page loads, and drawn again when the sentence is hovered. */
   .flourish {
     position: relative;
     display: inline-block;
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 21px;
+    color: var(--ink);
   }
 
   .flourish svg {
@@ -187,28 +213,20 @@ const structuredData = {
 
   .flourish path {
     fill: none;
-    stroke: var(--accent);
+    stroke: var(--vermillion);
     stroke-width: 2.2;
     stroke-linecap: round;
     stroke-dasharray: 1;
   }
 
   .links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    font-size: 16px;
-  }
-
-  .links.small {
-    margin-top: 4px;
     font-size: 15px;
   }
 
   section {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
   }
 
   h2 {
@@ -226,7 +244,7 @@ const structuredData = {
   .entries {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
   }
 
   .entry {
@@ -237,11 +255,12 @@ const structuredData = {
 
   h3 {
     font-size: 17px;
+    line-height: 1.35;
     font-weight: 600;
   }
 
   .text {
-    color: var(--muted);
+    color: var(--ink-muted);
   }
 
   .project {
@@ -252,7 +271,7 @@ const structuredData = {
 
   @media (max-width: 600px) {
     main {
-      gap: 56px;
+      gap: 48px;
     }
   }
 

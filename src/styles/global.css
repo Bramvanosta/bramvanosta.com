@@ -1,9 +1,8 @@
-/* Shared by every site. Each site sets its own colour tokens on :root. */
+/* Shared by every site. Each site sets its own colour tokens on :root, --focus included. */
 :root {
   color-scheme: light dark;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-code: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --font-serif: ui-serif, "New York", Georgia, "Times New Roman", serif;
 }
 
 *,
@@ -43,7 +42,7 @@ video {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 

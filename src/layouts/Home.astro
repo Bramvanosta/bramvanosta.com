@@ -1,5 +1,6 @@
 ---
 // Layout of bramvanosta.com: one reading column, the page's <main> then the footer.
+import { Font } from "astro:assets";
 import { PROFILE } from "../lib/profile.ts";
 import Base from "./Base.astro";
 import "../styles/home.css";
@@ -21,6 +22,9 @@ const { title, description, noindex = false } = Astro.props;
   imageAlt="Bram van Osta, freelance full-stack developer in south-west France"
   noindex={noindex}
 >
+  <Font cssVariable="--font-inter" preload slot="head" />
+  <Font cssVariable="--font-plex-mono" preload slot="head" />
+  <Font cssVariable="--font-newsreader" preload slot="head" />
   <slot name="head" slot="head" />
   <div class="column">
     <slot />
@@ -37,35 +41,33 @@ const { title, description, noindex = false } = Astro.props;
 </Base>
 
 <style>
+  /* The design system's spacing: 72 px between sections, 32 px at the sides; 48 and 16 on a phone. */
   .column {
-    max-width: 640px;
+    max-width: 704px;
     margin: 0 auto;
-    padding: 112px 24px 64px;
+    padding: 72px 32px;
     display: flex;
     flex-direction: column;
-    gap: 64px;
+    gap: 72px;
   }
 
   footer {
-    padding-top: 20px;
+    padding-top: 8px;
     border-top: 1px solid var(--line);
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 24px;
+    gap: 0 24px;
+    align-items: center;
     justify-content: space-between;
     font-size: 14px;
-    color: var(--muted);
-  }
-
-  .links {
-    display: flex;
-    gap: 20px;
+    line-height: 1.5;
+    color: var(--ink-muted);
   }
 
   @media (max-width: 600px) {
     .column {
-      padding-top: 64px;
-      gap: 56px;
+      padding: 48px 16px;
+      gap: 48px;
     }
   }
 </style>
