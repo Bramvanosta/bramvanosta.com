@@ -142,7 +142,7 @@ const structuredData = {
       description,
       applicationCategory: "MultimediaApplication",
       operatingSystem: "macOS 15 or later",
-      ...(RETAKE.released ? { downloadUrl: RETAKE.releases } : {}),
+      downloadUrl: RETAKE.releases,
       image: publicUrl("/retake/og.png").href,
       license: "https://opensource.org/license/MIT",
       sameAs: [RETAKE.repo],
@@ -157,8 +157,7 @@ const structuredData = {
   <main class="wrap" id="main">
     <section class="hero">
       <p class="pill">
-        Open source<span class="platforms-in-pill"> · macOS app</span> ·{" "}
-        {RETAKE.released ? "MIT license" : "First release on its way"}
+        Open source<span class="platforms-in-pill"> · macOS app</span> · MIT license
       </p>
       <h1>Write the scenario. Get the product video.</h1>
       <p class="sub">
@@ -175,7 +174,7 @@ const structuredData = {
           View the source
         </a>
       </div>
-      {RETAKE.released && <CopyCommand command={RETAKE.brew} />}
+      <CopyCommand command={RETAKE.brew} />
       <ul class="platforms">
         {platforms.map((platform) => (
           <li>
@@ -371,14 +370,8 @@ const structuredData = {
           <h3>macOS app</h3>
           <p>For macOS 15 or later on Apple silicon (no Intel build yet). It updates itself, only when you click.</p>
           <pre tabindex="0">{`${RETAKE.brew}\n# or, with the release candidates too:\n${RETAKE.brewBeta}`}</pre>
-          {!RETAKE.released && (
-            <p class="note">
-              The first release is on its way: Homebrew and the disk image will work once it is on GitHub Releases.
-            </p>
-          )}
           <a class="more" href={RETAKE.releases}>
-            {RETAKE.released ? "Or get the .dmg from GitHub Releases" : "Watch GitHub Releases"}{" "}
-            <span aria-hidden="true">→</span>
+            Or get the .dmg from the latest release <span aria-hidden="true">→</span>
           </a>
         </div>
         <div class="card" id="download-source">
@@ -776,15 +769,6 @@ const structuredData = {
 
   .download .card {
     gap: 14px;
-  }
-
-  .card .note {
-    padding: 10px 12px;
-    border-left: 3px solid var(--take);
-    border-radius: 4px;
-    background: var(--bg);
-    font-size: 15px;
-    color: var(--ink);
   }
 
   .license {

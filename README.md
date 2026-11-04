@@ -74,7 +74,7 @@ npm run font
 
 Ranch’s screenshots in `src/assets/ranch/` come from the Ranch repository (`.github/assets/`). Astro turns them into AVIF and WebP at build time. A presentation video will take their place on Ranch’s page (`src/components/ranch/Screenshot.astro`).
 
-Retake’s screenshots and video frames in `src/assets/retake/` come from the Retake repository (`.github/assets/`), turned into AVIF and WebP the same way. Its mark is the “two takes” of that repository (`packages/ui/src/mark.ts`), copied in `src/components/retake/RetakeMark.astro` and `public/retake/favicon.svg`. Its page says the first release is on its way until `released` is set in `src/lib/retake.ts`.
+Retake’s screenshots and video frames in `src/assets/retake/` come from the Retake repository (`.github/assets/`), turned into AVIF and WebP the same way. Its mark is the “two takes” of that repository (`packages/ui/src/mark.ts`), copied in `src/components/retake/RetakeMark.astro` and `public/retake/favicon.svg`.
 
 ### Adding a subsite
 

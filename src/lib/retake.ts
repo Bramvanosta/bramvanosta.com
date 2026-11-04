@@ -3,14 +3,11 @@ const REPO = "https://github.com/Bramvanosta/Video";
 
 export const RETAKE = {
   repo: REPO,
-  releases: `${REPO}/releases`,
+  releases: `${REPO}/releases/latest`,
   changelog: `${REPO}/blob/main/CHANGELOG.md`,
   remotionLicense: "https://www.remotion.dev/license",
 
-  /** False until the first release is on GitHub: the page then says it is on its way and points to the source. */
-  released: false,
-
-  /** Homebrew, once the first release is out: the stable releases, or the release candidates too. Apple silicon only. */
+  /** Homebrew: the stable releases, or the release candidates too. Apple silicon only. */
   brew: "brew install --cask bramvanosta/tap/retake",
   brewBeta: "brew install --cask bramvanosta/tap/retake@beta",
 
