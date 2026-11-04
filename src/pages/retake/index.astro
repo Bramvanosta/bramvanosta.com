@@ -16,12 +16,12 @@ import videoNotification from "../../assets/retake/video-notification.webp";
 import videoProposal from "../../assets/retake/video-proposal.webp";
 
 const description =
-  "Retake turns a written YAML scenario into a finished product video: a headless capture with the cursor drawn in the page, edited automatically with themeable components. A macOS app, driven by Claude through MCP.";
+  "Retake turns a written YAML scenario into a finished product video: a headless capture with the cursor drawn in the page, edited automatically with themeable components. A macOS app, with an MCP server for AI agents.";
 
 const platforms: { icon: IconName; label: string }[] = [
   { icon: "monitor", label: "macOS 15 or later, Apple silicon" },
-  { icon: "download", label: "One signed disk image, everything inside" },
-  { icon: "plug", label: "MCP server for Claude" },
+  { icon: "terminal", label: "Linux: from the source" },
+  { icon: "plug", label: "MCP server included" },
 ];
 
 // The pipeline, in the Studio's words: Script · Shoot · Edit · Review, then the files to deliver.
@@ -44,7 +44,7 @@ const pipeline: { name: string; title: string; text: string }[] = [
   {
     name: "Review",
     title: "Checked before anyone sees it",
-    text: "Contact sheets, key frames and checks, for you or for Claude, and comments pinned to a frame of the render.",
+    text: "Contact sheets, key frames and checks, for you or your agent, and comments pinned to a frame of the render.",
   },
   {
     name: "Export",
@@ -89,8 +89,7 @@ const features: { icon: IconName; title: string; text: string }[] = [
 // The Set-up sheet of the app, as it opens at the first start.
 const setup = [
   { name: "Command line", detail: "retake, linked from the app", action: "Install" },
-  { name: "Claude Code", detail: "the Retake plugin", action: "Run" },
-  { name: "Claude Desktop", detail: "the retake MCP server", action: "Add…" },
+  { name: "AI client", detail: "the retake MCP server", action: "Add…" },
   { name: "Notifications", detail: "when a job ends out of sight", action: "Allow…" },
 ];
 
@@ -127,7 +126,7 @@ const frames = [
   },
 ];
 
-// What Claude calls, in order, to make a video (Retake's scenario skill).
+// What an agent calls, in order, to make a video.
 const loop = ["page_inspect", "scenario_validate", "scenario_save", "run_capture", "render", "review"];
 
 const site = publicUrl("/retake/").href;
@@ -163,7 +162,8 @@ const structuredData = {
       <h1>Write the scenario. Get the product video.</h1>
       <p class="sub">
         Retake plays your web app from a YAML scenario, films it headless with the cursor drawn in the page, and edits
-        the take into a finished video in your theme. Claude can write the scenario and run it all, through MCP.
+        the take into a finished video in your theme. Its MCP server lets your AI agents write the scenario and run it
+        all.
       </p>
       <div class="ctas">
         <a class="btn btn-primary" href="#download">
@@ -277,20 +277,22 @@ const structuredData = {
           One app, everything inside
         </h2>
         <p class="lede">
-          Retake.app carries its own Node.js, engine, Chromium, ffmpeg, starter themes and Claude plugin. Nothing else
-          to install.
+          Retake.app carries its own Node.js, engine, Chromium, ffmpeg, and starter themes. Nothing else to install.
         </p>
         <ul class="points">
-          <li>One signed disk image: drag Retake to Applications and open it.</li>
+          <li>Drag Retake from its disk image to Applications, and open it.</li>
           <li>The first run makes your workspace, ~/Retake, or opens a folder you choose.</li>
-          <li>The Set-up sheet links the retake command and registers Retake with Claude, each only when you click.</li>
+          <li>
+            The Set-up sheet links the retake command and registers the MCP server in your AI client, each only when you
+            click.
+          </li>
           <li>Updates are checked at launch. Nothing installs until you click Install and Restart.</li>
         </ul>
       </div>
       <figure
         class="sheet"
         role="img"
-        aria-label="The Set-up sheet of the app: install the retake command, run the Claude Code plugin setup, add Retake to Claude Desktop, allow notifications. Every step is optional."
+        aria-label="The Set-up sheet of the app: install the retake command, add the MCP server to an AI client, allow notifications. Every step is optional."
       >
         <span class="sheet-head">
           <RetakeMark size={28} />
@@ -313,31 +315,34 @@ const structuredData = {
       </figure>
     </section>
 
-    <section id="claude" class="split reverse" aria-labelledby="claude-title">
+    <section id="agents" class="split reverse" aria-labelledby="agents-title">
       <div class="split-text">
-        <p class="kicker">Claude Code and Claude Desktop</p>
-        <h2 class="title" id="claude-title">
-          Ask Claude for the video
+        <p class="kicker">AI agents</p>
+        <h2 class="title" id="agents-title">
+          Ask your agent for the video
         </h2>
         <p class="lede">
-          Retake ships an MCP server and three skills. Claude inspects your product’s pages, writes the scenario itself,
-          then films, renders and reviews it with the same engine as the Studio.
+          Retake ships an MCP server. Your agent inspects your product’s pages, writes the scenario itself, then films,
+          renders and reviews it with the same engine as the Studio.
         </p>
         <ul class="points">
-          <li>Or show Claude the flow once, in a window, and it reads the draft.</li>
+          <li>Or show it the flow once, in a window, and it reads the draft.</li>
           <li>Hooks that need a human wait for your approval in the client.</li>
           <li>Renders run guarded: the project’s files only, no network.</li>
-          <li>Claude reads the comments on a frame, changes the video, renders it again and resolves them.</li>
+          <li>It reads the comments on a frame, changes the video, renders it again and resolves them.</li>
+          <li>
+            Any MCP client can connect: <code>retake mcp --print-config</code> prints its configuration.
+          </li>
         </ul>
       </div>
       <figure
         class="calls"
         role="img"
-        aria-label="The tools Claude calls in turn to make a video: page_inspect, scenario_validate, scenario_save, run_capture, render, review."
+        aria-label="The tools an agent calls in turn to make a video: page_inspect, scenario_validate, scenario_save, run_capture, render, review."
       >
         <span class="calls-head">
           <Icon name="message" />
-          Claude <span class="dim">· retake MCP</span>
+          Your agent <span class="dim">· MCP</span>
         </span>
         <span class="bubble">Make a one-minute video of the price list import.</span>
         <ol class="calls-list">
@@ -363,8 +368,8 @@ const structuredData = {
         <div class="card" id="download-macos">
           <h3>macOS app</h3>
           <p>
-            Retake_&lt;version&gt;_aarch64.dmg, for macOS 15 or later on Apple silicon. Move it to Applications before
-            the first start.
+            Retake_&lt;version&gt;_aarch64.dmg, for macOS 15 or later on Apple silicon (no Intel build yet). Move it to
+            Applications before the first start.
           </p>
           {!RETAKE.released && (
             <p class="note">The first release is on its way: its disk image will be on GitHub Releases.</p>
@@ -395,7 +400,7 @@ const structuredData = {
       <h2 class="title" id="closing-title">
         Your next product video is a scenario away
       </h2>
-      <p>Open source, under the MIT license. A macOS app, a command line, and an MCP server for Claude.</p>
+      <p>Open source, under the MIT license. A macOS app, a command line, and an MCP server for your AI agents.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="#download">
           Download for macOS
@@ -615,7 +620,7 @@ const structuredData = {
     color: var(--accent-ink);
   }
 
-  /* Text beside an illustration: the app's Set-up sheet, Claude's calls. */
+  /* Text beside an illustration: the app's Set-up sheet, an agent's calls. */
   .split {
     flex-direction: row;
     flex-wrap: wrap;
