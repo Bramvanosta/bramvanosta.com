@@ -17,5 +17,6 @@
     { "pattern": "bramvanosta.com", "custom_domain": true },
     { "pattern": "www.bramvanosta.com", "custom_domain": true },
     { "pattern": "ranch.bramvanosta.com", "custom_domain": true },
+    { "pattern": "retake.bramvanosta.com", "custom_domain": true },
   ],
 }

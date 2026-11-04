@@ -1,0 +1,187 @@
+---
+// Layout of retake.bramvanosta.com: Retake's colours and fonts, its header and footer.
+import { Font } from "astro:assets";
+import RetakeMark from "../components/retake/RetakeMark.astro";
+import { link } from "../lib/links.ts";
+import { PROFILE } from "../lib/profile.ts";
+import { RETAKE } from "../lib/retake.ts";
+import Base from "./Base.astro";
+import "../styles/retake.css";
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+const path = Astro.url.pathname;
+const home = link("/retake/", path);
+---
+
+<Base
+  title={title}
+  description={description}
+  siteName="Retake"
+  image="/retake/og.png"
+  imageAlt="Retake’s logo and headline, “Write the scenario. Get the product video.”"
+  noindex={noindex}
+>
+  <Font cssVariable="--font-inter-tight" preload slot="head" />
+  <Font cssVariable="--font-plex-mono" preload slot="head" />
+  <slot name="head" slot="head" />
+  <a class="skip" href="#main">
+    Skip to content
+  </a>
+  <header class="top">
+    <div class="wrap bar">
+      <a class="brand" href={home}>
+        <RetakeMark size={30} />
+        <span class="wordmark">Retake</span>
+      </a>
+      <nav aria-label="Main">
+        <a class="extra" href={link("/retake/#how", path)}>
+          How it works
+        </a>
+        <a class="extra" href={link("/retake/#app", path)}>
+          The app
+        </a>
+        <a class="extra" href={link("/retake/#claude", path)}>
+          Claude
+        </a>
+        <a href={link("/retake/#download", path)}>Download</a>
+        <a class="gh" href={RETAKE.repo}>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+  <slot />
+  <footer class="bottom">
+    <div class="wrap bar">
+      <span class="made">
+        <RetakeMark size={20} />
+        <span>
+          Open source, on GitHub. Made by <a href={link("/", path)}>{PROFILE.name}</a>.
+        </span>
+      </span>
+      <span class="links">
+        <a href={RETAKE.repo}>GitHub</a>
+        <a href={RETAKE.releases}>Releases</a>
+        <a href={RETAKE.changelog}>Changelog</a>
+      </span>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  .top {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top .bar {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  .brand .wordmark {
+    font-size: 22px;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 24px;
+    font-size: 15px;
+  }
+
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: none;
+  }
+
+  nav .gh {
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    font-weight: 600;
+  }
+
+  /* On a phone the header keeps one row: the other links are a scroll away, the releases in the footer. */
+  @media (max-width: 600px) {
+    .top .bar {
+      column-gap: 16px;
+    }
+
+    nav .extra {
+      display: none;
+    }
+  }
+
+  /* For keyboard users: the first stop of the page, shown once focused, jumps past the header. */
+  .skip {
+    position: absolute;
+    left: 16px;
+    top: 12px;
+    z-index: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--bg);
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-200%);
+  }
+
+  .skip:focus-visible {
+    transform: none;
+  }
+
+  .bottom {
+    margin-top: 112px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .bottom .bar {
+    padding-top: 32px;
+    padding-bottom: 56px;
+    gap: 16px 32px;
+  }
+
+  .made {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .made :global(svg) {
+    flex-shrink: 0;
+  }
+
+  .links {
+    display: flex;
+    gap: 24px;
+  }
+</style>

@@ -1,0 +1,225 @@
+---
+// The Studio, drawn: a stand-in until the screenshots of Retake's repository (.github/assets/) take its
+// place, as AVIF and WebP like Ranch's (src/components/ranch/Screenshot.astro).
+import RetakeMark from "./RetakeMark.astro";
+
+const modes = ["Script", "Shoot", "Edit", "Review"];
+const scenes = ["intro", "import", "review", "outro"];
+---
+
+<figure
+  class="studio"
+  role="img"
+  aria-label="A sketch of Retake's Studio window: the projects on the left, the scenario's take in the centre with its timeline of scenes, the inspector on the right, and the pipeline Script, Shoot, Edit, Review in the title bar"
+>
+  <span class="titlebar" aria-hidden="true">
+    <span class="dots">
+      <i></i>
+      <i></i>
+      <i></i>
+    </span>
+    <span class="where">shop › import</span>
+    <span class="modes">
+      {modes.map((mode) => (
+        <span class:list={{ on: mode === "Edit" }}>{mode}</span>
+      ))}
+    </span>
+  </span>
+  <span class="panes" aria-hidden="true">
+    <span class="browser">
+      <span class="label">Projects</span>
+      <span class="item on">shop</span>
+      <span class="item">docs-site</span>
+      <span class="label">Productions</span>
+      <span class="item on">import</span>
+      <span class="item">onboarding</span>
+      <span class="item">pricing</span>
+    </span>
+    <span class="centre">
+      <span class="player">
+        <RetakeMark size={72} />
+      </span>
+      <span class="timeline">
+        {scenes.map((scene) => (
+          <span>{scene}</span>
+        ))}
+      </span>
+    </span>
+    <span class="inspector">
+      <span class="label">Take</span>
+      <span class="bar"></span>
+      <span class="bar short"></span>
+      <span class="label">Theme</span>
+      <span class="bar"></span>
+      <span class="bar short"></span>
+    </span>
+  </span>
+</figure>
+
+<style>
+  .studio {
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+    border: 1px solid #2e3035;
+    background: #111214;
+    color: #a3a8b3;
+    font-family: var(--font-code);
+    font-size: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.35);
+  }
+
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #2e3035;
+    background: #18191c;
+  }
+
+  .dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .dots i {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #2e3035;
+  }
+
+  .where {
+    color: #ececef;
+  }
+
+  .modes {
+    display: inline-flex;
+    margin: 0 auto;
+    padding: 3px;
+    border-radius: 8px;
+    background: #111214;
+  }
+
+  .modes span {
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  .modes .on {
+    background: #2b2d32;
+    color: #ffffff;
+  }
+
+  .panes {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 18% 1fr 20%;
+  }
+
+  .browser,
+  .inspector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px;
+    background: #18191c;
+  }
+
+  .browser {
+    border-right: 1px solid #2e3035;
+  }
+
+  .inspector {
+    border-left: 1px solid #2e3035;
+  }
+
+  .label {
+    margin-top: 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #7d828c;
+  }
+
+  .item {
+    padding: 3px 8px;
+    border-radius: 5px;
+  }
+
+  .item.on {
+    background: #1d2a44;
+    color: #ececef;
+  }
+
+  .bar {
+    display: block;
+    height: 8px;
+    border-radius: 4px;
+    background: #2b2d32;
+  }
+
+  .bar.short {
+    width: 60%;
+  }
+
+  .centre {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .player {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: radial-gradient(120% 90% at 30% 20%, #1d2a44, #0a0a0b 70%);
+  }
+
+  .timeline {
+    display: flex;
+    gap: 4px;
+  }
+
+  .timeline span {
+    flex: 1;
+    padding: 6px 8px;
+    border-radius: 5px;
+    background: #25272b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .timeline span:nth-child(2) {
+    flex: 3;
+    box-shadow: inset 0 0 0 2px #3d7bff;
+    color: #ececef;
+  }
+
+  /* On a phone the sketch keeps the take and its timeline. */
+  @media (max-width: 600px) {
+    .studio {
+      aspect-ratio: 4 / 3;
+    }
+
+    .panes {
+      grid-template-columns: 1fr;
+    }
+
+    .browser,
+    .inspector,
+    .where {
+      display: none;
+    }
+  }
+</style>

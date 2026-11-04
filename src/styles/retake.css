@@ -1,0 +1,150 @@
+/* retake.bramvanosta.com: the colours of Retake's Studio (its UI kit's tokens), graphite and a film blue.
+   Shared by its pages and components. Breakpoints: 900px (tablet), 600px (phone), 480px (small phone). */
+:root {
+  --bg: #f6f6f7;
+  --surface: #ffffff;
+  --ink: #16181d;
+  --muted: #555b66;
+  --line: #dfe0e4;
+  --track: #e2e3e6;
+  /* --accent fills buttons; --accent-ink is the same blue, darker, for text on the light ground. */
+  --accent: #2f6fe0;
+  --accent-hover: #1f5bc8;
+  --accent-ink: #1a56c4;
+  --on-accent: #ffffff;
+  --take: #3d7bff;
+  --record: #d93a30;
+  --ok: #1a8d4c;
+  --screen: #0a0a0b;
+  --code: #141823;
+  --code-ink: #f4f5f7;
+  --focus: var(--accent);
+  --font-display: var(--font-inter-tight);
+  --font-label: var(--font-plex-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111214;
+    --surface: #18191c;
+    --ink: #ececef;
+    --muted: #a3a8b3;
+    --line: #2e3035;
+    --track: #25272b;
+    --accent: #2f6fe0;
+    --accent-hover: #1f5bc8;
+    --accent-ink: #7aaaff;
+    --on-accent: #ffffff;
+    --record: #ff453a;
+    --ok: #4cd27a;
+    --code: #0a0a0b;
+    --code-ink: #ececef;
+  }
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: var(--accent-ink);
+}
+
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+@media (max-width: 600px) {
+  .wrap {
+    padding: 0 20px;
+  }
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.kicker {
+  font-family: var(--font-label);
+  font-size: 14px;
+  color: var(--accent-ink);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 22px + 1.6vw, 40px);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 650;
+  font-size: 16px;
+}
+
+.btn:hover {
+  color: var(--ink);
+  border-color: var(--muted);
+}
+
+.btn-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn-primary:hover {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+  color: var(--on-accent);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.card h3 {
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.card p {
+  font-size: 16px;
+  color: var(--muted);
+}
+
+pre,
+code {
+  font-family: var(--font-code);
+}
+
+pre {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--code);
+  color: var(--code-ink);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+}

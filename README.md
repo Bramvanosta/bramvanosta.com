@@ -2,12 +2,13 @@
 
 My personal site and my projects’ sites, from one repository and one deployment:
 
-| Host                                                   | Pages               | What it is                                                                 |
-| ------------------------------------------------------ | ------------------- | -------------------------------------------------------------------------- |
-| [bramvanosta.com](https://bramvanosta.com)             | `src/pages/*.astro` | Who I am, what I do, my projects                                           |
-| [ranch.bramvanosta.com](https://ranch.bramvanosta.com) | `src/pages/ranch/`  | [Ranch](https://github.com/Bramvanosta/Ranch), a desktop client for BullMQ |
+| Host                                                     | Pages               | What it is                                                                             |
+| -------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------- |
+| [bramvanosta.com](https://bramvanosta.com)               | `src/pages/*.astro` | Who I am, what I do, my projects                                                       |
+| [ranch.bramvanosta.com](https://ranch.bramvanosta.com)   | `src/pages/ranch/`  | [Ranch](https://github.com/Bramvanosta/Ranch), a desktop client for BullMQ             |
+| [retake.bramvanosta.com](https://retake.bramvanosta.com) | `src/pages/retake/` | [Retake](https://github.com/Bramvanosta/Video), product videos from a written scenario |
 
-Static pages built with [Astro](https://astro.build), served by a [Cloudflare Worker](https://developers.cloudflare.com/workers/static-assets/) with its static assets. No client framework, no cookies, no analytics: the only JavaScript is the clock on the home page and the copy button on Ranch’s.
+Static pages built with [Astro](https://astro.build), served by a [Cloudflare Worker](https://developers.cloudflare.com/workers/static-assets/) with its static assets. No client framework, no cookies, no analytics: the only JavaScript is the clock on the home page and the copy button on Ranch’s. The animations of Ranch’s and Retake’s pages are CSS only.
 
 A project’s own site is a **subsite**: it is built under `src/pages/<subsite>/` and served on `<subsite>.bramvanosta.com`. The list lives in `src/lib/sites.ts`.
 
@@ -32,7 +33,7 @@ Requires Node 24 ([mise](https://mise.jdx.dev) reads `mise.toml`).
 
 ```bash
 npm install
-npm run dev        # Astro dev server: http://localhost:4321, Ranch at /ranch/
+npm run dev        # Astro dev server: http://localhost:4321, Ranch at /ranch/, Retake at /retake/
 npm run check      # types, formatting (Prettier) and tests, as CI runs them
 npm test           # the tests alone: the Worker's routing and headers, the site helpers
 npm run format     # format every file with Prettier
@@ -60,7 +61,8 @@ sharp draws the icons, headless Chrome takes the cards. The script looks for Chr
 Every font is self-hosted, cut down from its Fontsource file to the characters the pages use (`src/assets/fonts/`, under 9 KB each):
 
 - the home page follows the Bram van Osta design system: Inter 400 and 600 for the text, IBM Plex Mono 400 for the labels, Newsreader 500 for the name in the logo (its letters only), Inter Tight 700 for the 404 title;
-- Ranch’s wordmark and labels use JetBrains Mono 600; the rest of its pages use the system fonts.
+- Ranch’s wordmark and labels use JetBrains Mono 600; the rest of its pages use the system fonts;
+- Retake’s wordmark and titles use Inter Tight 700, its labels IBM Plex Mono 400; the rest of its pages use the system fonts.
 
 The text fonts hold printable ASCII and a little punctuation. Before using a font for another character, add it in `scripts/fonts/subset.mjs` and render the subsets again:
 
@@ -71,6 +73,8 @@ npm run font
 ### Screenshots
 
 Ranch’s screenshots in `src/assets/ranch/` come from the Ranch repository (`.github/assets/`). Astro turns them into AVIF and WebP at build time. A presentation video will take their place on Ranch’s page (`src/components/ranch/Screenshot.astro`).
+
+Retake’s page draws its Studio in HTML for now (`src/components/retake/Screenshot.astro`), until the screenshots of the Retake repository (`.github/assets/`) take its place. Its mark is the “two takes” of that repository (`packages/ui/src/mark.ts`), copied in `src/components/retake/RetakeMark.astro` and `public/retake/favicon.svg`. Its page says the first release is on its way until `released` is set in `src/lib/retake.ts`.
 
 ### Adding a subsite
 
@@ -98,7 +102,7 @@ These steps move the domain’s DNS from OVH to Cloudflare without a moment offl
 3. **Create an API token in Cloudflare** (_My Profile › API Tokens_) from the _Edit Cloudflare Workers_ template, limited to this account and the `bramvanosta.com` zone. If the first deploy fails while creating the custom domains, add _Zone › DNS › Edit_ to it.
 4. **Add two repository secrets on GitHub** (_Settings › Secrets and variables › Actions_): `CLOUDFLARE_API_TOKEN`, and `CLOUDFLARE_ACCOUNT_ID` (shown on the account’s home page in the dashboard). From now on, every push to `main` deploys.
 5. **Remove OVH’s web redirect from the zone**, right before deploying: the `A` record on the apex that points to OVH’s redirect service, the matching `www` record if there is one, and the TXT record starting with `4|`. A custom domain cannot be attached over them.
-6. **Deploy**: in GitHub, _Actions › Deploy › Run workflow_ on `main`. Wrangler creates the Worker and attaches `bramvanosta.com`, `www.bramvanosta.com` and `ranch.bramvanosta.com` to it as custom domains, with their DNS records and certificates.
+6. **Deploy**: in GitHub, _Actions › Deploy › Run workflow_ on `main`. Wrangler creates the Worker and attaches `bramvanosta.com`, `www.bramvanosta.com`, `ranch.bramvanosta.com` and `retake.bramvanosta.com` to it as custom domains, with their DNS records and certificates.
 7. **Check every host**:
    - `https://bramvanosta.com` and `https://ranch.bramvanosta.com` answer;
    - `https://www.bramvanosta.com`, `http://bramvanosta.com` and `https://bramvanosta.com/ranch/` redirect;
