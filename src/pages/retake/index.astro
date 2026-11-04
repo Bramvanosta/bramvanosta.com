@@ -1,4 +1,5 @@
 ---
+import CopyCommand from "../../components/CopyCommand.astro";
 import Icon, { type IconName } from "../../components/Icon.astro";
 import JsonLd from "../../components/JsonLd.astro";
 import RetakeMark from "../../components/retake/RetakeMark.astro";
@@ -174,6 +175,7 @@ const structuredData = {
           View the source
         </a>
       </div>
+      {RETAKE.released && <CopyCommand command={RETAKE.brew} />}
       <ul class="platforms">
         {platforms.map((platform) => (
           <li>
@@ -367,15 +369,15 @@ const structuredData = {
       <div class="download">
         <div class="card" id="download-macos">
           <h3>macOS app</h3>
-          <p>
-            Retake_&lt;version&gt;_aarch64.dmg, for macOS 15 or later on Apple silicon (no Intel build yet). Move it to
-            Applications before the first start.
-          </p>
+          <p>For macOS 15 or later on Apple silicon (no Intel build yet). It updates itself, only when you click.</p>
+          <pre tabindex="0">{`${RETAKE.brew}\n# or, with the release candidates too:\n${RETAKE.brewBeta}`}</pre>
           {!RETAKE.released && (
-            <p class="note">The first release is on its way: its disk image will be on GitHub Releases.</p>
+            <p class="note">
+              The first release is on its way: Homebrew and the disk image will work once it is on GitHub Releases.
+            </p>
           )}
           <a class="more" href={RETAKE.releases}>
-            {RETAKE.released ? "Get the .dmg from GitHub Releases" : "Watch GitHub Releases"}{" "}
+            {RETAKE.released ? "Or get the .dmg from GitHub Releases" : "Watch GitHub Releases"}{" "}
             <span aria-hidden="true">→</span>
           </a>
         </div>

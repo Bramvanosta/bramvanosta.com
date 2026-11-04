@@ -8,7 +8,7 @@ My personal site and my projects’ sites, from one repository and one deploymen
 | [ranch.bramvanosta.com](https://ranch.bramvanosta.com)   | `src/pages/ranch/`  | [Ranch](https://github.com/Bramvanosta/Ranch), a desktop client for BullMQ             |
 | [retake.bramvanosta.com](https://retake.bramvanosta.com) | `src/pages/retake/` | [Retake](https://github.com/Bramvanosta/Video), product videos from a written scenario |
 
-Static pages built with [Astro](https://astro.build), served by a [Cloudflare Worker](https://developers.cloudflare.com/workers/static-assets/) with its static assets. No client framework, no cookies, no analytics: the only JavaScript is the clock on the home page and the copy button on Ranch’s. The animations of Ranch’s and Retake’s pages are CSS only.
+Static pages built with [Astro](https://astro.build), served by a [Cloudflare Worker](https://developers.cloudflare.com/workers/static-assets/) with its static assets. No client framework, no cookies, no analytics: the only JavaScript is the clock on the home page and the copy button of an install command (`src/components/CopyCommand.astro`). The animations of Ranch’s and Retake’s pages are CSS only.
 
 A project’s own site is a **subsite**: it is built under `src/pages/<subsite>/` and served on `<subsite>.bramvanosta.com`. The list lives in `src/lib/sites.ts`.
 

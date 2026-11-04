@@ -1,4 +1,4 @@
-// Retake's public links, and its build-from-source commands as its README gives them.
+// Retake's public links, and its install commands as its README and its Homebrew tap give them.
 const REPO = "https://github.com/Bramvanosta/Video";
 
 export const RETAKE = {
@@ -9,6 +9,10 @@ export const RETAKE = {
 
   /** False until the first release is on GitHub: the page then says it is on its way and points to the source. */
   released: false,
+
+  /** Homebrew, once the first release is out: the stable releases, or the release candidates too. Apple silicon only. */
+  brew: "brew install --cask bramvanosta/tap/retake",
+  brewBeta: "brew install --cask bramvanosta/tap/retake@beta",
 
   source: `git clone ${REPO}.git && cd Video
 pnpm install && pnpm build
