@@ -5,6 +5,7 @@ export const RETAKE = {
   repo: REPO,
   releases: `${REPO}/releases`,
   changelog: `${REPO}/blob/main/CHANGELOG.md`,
+  remotionLicense: "https://www.remotion.dev/license",
 
   /** False until the first release is on GitHub: the page then says it is on its way and points to the source. */
   released: false,

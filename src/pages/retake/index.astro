@@ -144,6 +144,7 @@ const structuredData = {
       operatingSystem: "macOS 15 or later",
       ...(RETAKE.released ? { downloadUrl: RETAKE.releases } : {}),
       image: publicUrl("/retake/og.png").href,
+      license: "https://opensource.org/license/MIT",
       sameAs: [RETAKE.repo],
       author: PERSON,
     },
@@ -157,7 +158,7 @@ const structuredData = {
     <section class="hero">
       <p class="pill">
         Open source<span class="platforms-in-pill"> · macOS app</span> ·{" "}
-        {RETAKE.released ? "On GitHub" : "First release on its way"}
+        {RETAKE.released ? "MIT license" : "First release on its way"}
       </p>
       <h1>Write the scenario. Get the product video.</h1>
       <p class="sub">
@@ -382,6 +383,11 @@ const structuredData = {
           </a>
         </div>
       </div>
+      <p class="license">
+        Retake is under the MIT license. It renders its videos with <a href={RETAKE.remotionLicense}>Remotion</a>, which
+        is not open source: its own license applies to everyone who renders with Retake, free for individuals and for
+        companies of up to three people. The macOS app also carries GPL builds of FFmpeg, each with its notice.
+      </p>
     </section>
 
     <section class="closing" aria-labelledby="closing-title">
@@ -389,7 +395,7 @@ const structuredData = {
       <h2 class="title" id="closing-title">
         Your next product video is a scenario away
       </h2>
-      <p>Open source, on GitHub. A macOS app, a command line, and an MCP server for Claude.</p>
+      <p>Open source, under the MIT license. A macOS app, a command line, and an MCP server for Claude.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="#download">
           Download for macOS
@@ -772,6 +778,12 @@ const structuredData = {
     background: var(--bg);
     font-size: 15px;
     color: var(--ink);
+  }
+
+  .license {
+    max-width: 760px;
+    font-size: 15px;
+    color: var(--muted);
   }
 
   .more {
