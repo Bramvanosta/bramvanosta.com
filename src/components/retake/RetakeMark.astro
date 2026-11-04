@@ -1,0 +1,71 @@
+---
+// Retake's "two takes" mark: the previous take as an outline behind, the new one in front with a play
+// triangle, on a plate. Copied from Retake's own source of the drawing (packages/ui/src/mark.ts in its
+// repository), with its three variants by the size the mark is seen at, and the Studio's colours: an ink
+// plate in light, a quiet lift on dark grounds where an ink plate would vanish. The tiny variant is also
+// public/retake/favicon.svg, from which scripts/images/ renders the icons.
+interface Props {
+  size: number;
+  class?: string;
+}
+
+const { size, class: className } = Astro.props;
+const variant = size <= 20 ? "tiny" : size < 64 ? "small" : "full";
+---
+
+<svg class:list={["mark", className]} width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+  <rect class="plate" x="2" y="2" width="96" height="96" rx="22"></rect>
+  {variant === "full" && (
+    <>
+      <rect class="back-outline" x="17" y="21" width="50" height="36" rx="7" stroke-width="6" />
+      <rect class="front" x="33" y="43" width="50" height="36" rx="7" />
+      <path class="play" d="M53 54 L53 68 L64.5 61 Z" stroke-width="2.5" stroke-linejoin="round" />
+    </>
+  )}
+  {variant === "small" && (
+    <>
+      <rect class="back-outline" x="15" y="19" width="52" height="38" rx="7" stroke-width="8" />
+      <rect class="front" x="33" y="43" width="52" height="38" rx="7" />
+    </>
+  )}
+  {variant === "tiny" && (
+    <>
+      <rect class="back" x="12" y="16" width="56" height="40" rx="7" />
+      <rect class="front" x="32" y="40" width="56" height="42" rx="7" />
+    </>
+  )}
+</svg>
+
+<style>
+  .mark {
+    --mark-plate: #141823;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .mark {
+      --mark-plate: #2a2e37;
+    }
+  }
+
+  .plate {
+    fill: var(--mark-plate);
+  }
+
+  .back {
+    fill: #3d7bff;
+  }
+
+  .back-outline {
+    fill: none;
+    stroke: #3d7bff;
+  }
+
+  .front {
+    fill: #f4f5f7;
+  }
+
+  .play {
+    fill: var(--mark-plate);
+    stroke: var(--mark-plate);
+  }
+</style>

@@ -1,0 +1,1085 @@
+---
+// The hero animation: a scenario in YAML, the take Retake films from it, the video it edits. CSS only.
+//
+// Everything runs on one 14 s loop (--loop-duration) that starts with the page, so the steps stay in step.
+// The timeline, in % of the loop:
+//   3–10   the scenario; 10–60 its steps play, each line lit while the take runs it
+//   10–19  the in-page cursor glides to New import and clicks; 21–24 the dialog opens
+//   21–27  the cursor moves over the drop zone; 28–31 the file drops in
+//   32–45  the cursor glides to Start import and clicks; 48–50 the dialog closes; 50–53 the offers are created
+//   61–64  the take reaches the editor; 64–67 its caption rolls in; 62–84 the video plays through
+//   84–87  the review finds it clean; 88–92 the panels roll up, and reset while empty
+// Text never fades: it rolls in and out with clip-path, at full contrast at every frame.
+// The styles outside @keyframes are the last frame: what reduced motion shows.
+import Icon from "../Icon.astro";
+
+// The scenario, line by line; `step` lines are lit in turn while the take plays them.
+const scenario = [
+  { text: "scenes:" },
+  { text: "  - id: import" },
+  { text: "    caption: Import in seconds.", cue: "caption" },
+  { text: "    steps:" },
+  { text: "      - click: {text: New import}", cue: "step-1" },
+  { text: "      - drop_file: {name: prices.xlsx}", cue: "step-2" },
+  { text: "      - click: {text: Start import}", cue: "step-3" },
+  { text: "      - wait_for: {text: 921 offers}", cue: "step-4" },
+];
+
+const clips = [
+  { name: "intro", grow: 1 },
+  { name: "import", grow: 4 },
+  { name: "outro", grow: 1 },
+];
+---
+
+<div class="demo">
+  <label class="pause">
+    <input type="checkbox" aria-label="Pause the animation" />
+    <Icon name="pause" size={12} strokeWidth={3} class="icon-pause" />
+    <Icon name="play" size={12} class="icon-play" />
+    <span class="when-playing" aria-hidden="true">
+      Pause animation
+    </span>
+    <span class="when-paused" aria-hidden="true">
+      Play animation
+    </span>
+  </label>
+  <div
+    class="scene"
+    role="img"
+    aria-label="Animation: a scenario of four steps, written in YAML. Retake plays it in a headless browser: its cursor, drawn inside the page, clicks New import, a price list is dropped in, Start import is clicked and 921 offers are created. The editor then turns the take into a video with a caption, an intro and an outro, and the review finds it clean."
+  >
+    <div class="panels" aria-hidden="true">
+      <div class="panel">
+        <span class="focus focus-script"></span>
+        <span class="step">
+          <b>1</b> You write the scenario
+        </span>
+        <div class="body">
+          <span class="file">projects/shop/import.yaml</span>
+          <span class="yaml">
+            <span class="cue"></span>
+            {scenario.map((line) => (
+              <span class="line">{line.text}</span>
+            ))}
+          </span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <span class="focus focus-take"></span>
+        <span class="step">
+          <b>2</b> Retake films it, headless
+        </span>
+        <div class="body">
+          <span class="window">
+            <span class="chrome">
+              <span class="dots">
+                <i></i>
+                <i></i>
+                <i></i>
+              </span>
+              <span class="address">console · /imports</span>
+              <span class="rec">
+                <span class="rec-dot"></span>REC
+              </span>
+            </span>
+            <span class="page">
+              <strong class="page-title">Imports</strong>
+              <span class="button new-import">New import</span>
+              <span class="rows">
+                <span class="row">
+                  <span class="row-name">Spring list.xlsx</span>
+                  <span class="dim">412 offers</span>
+                </span>
+                <span class="row">
+                  <span class="row-name">Roasters.csv</span>
+                  <span class="dim">86 offers</span>
+                </span>
+              </span>
+              <span class="dialog">
+                <strong>New import</strong>
+                <span class="drop">
+                  <span class="chip">
+                    <Icon name="file" size={13} />
+                    prices.xlsx
+                  </span>
+                </span>
+                <span class="button primary start-import">Start import</span>
+              </span>
+              <span class="toast">
+                <Icon name="check" size={13} strokeWidth={3} />
+                921 offers created
+              </span>
+              <svg class="cursor" viewBox="0 0 24 24">
+                <path
+                  d="M5 3 19 10l-6 1.6L10 18z"
+                  fill="#16181d"
+                  stroke="#ffffff"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <span class="focus focus-edit"></span>
+        <span class="step">
+          <b>3</b> It edits the video
+        </span>
+        <div class="body">
+          <span class="screen">
+            <span class="idle">Waiting for the take</span>
+            <span class="frame">
+              <span class="mockup">
+                <span class="mockup-bar">
+                  <i></i>
+                  <i></i>
+                  <i></i>
+                </span>
+                <span class="mockup-page">
+                  <span class="mockup-line wide"></span>
+                  <span class="mockup-line"></span>
+                  <span class="mockup-line short"></span>
+                  <span class="mockup-toast"></span>
+                </span>
+              </span>
+              <span class="caption">Import in seconds.</span>
+            </span>
+          </span>
+          <span class="clips">
+            {clips.map((clip) => (
+              <span style={`flex-grow: ${clip.grow}`}>{clip.name}</span>
+            ))}
+            <span class="played"></span>
+          </span>
+          <span class="result">
+            <span>
+              import-v1.mp4 <span class="dim">· 1920×1080</span>
+            </span>
+            <span class="clean">
+              <Icon name="check" size={13} strokeWidth={3} /> reviewed clean
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .demo {
+    width: 100%;
+    max-width: 1056px;
+    margin: 16px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+  }
+
+  /* Three panels side by side, two over one on a tablet, stacked on a phone. */
+  .panels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    font-family: var(--font-code);
+  }
+
+  @media (max-width: 900px) {
+    .panels {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .panel:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .panels {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 300px;
+    padding: 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px -36px rgba(0, 0, 0, 0.45);
+  }
+
+  /* What changes in a panel; its step label stays. */
+  .body {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .focus {
+    position: absolute;
+    inset: -1px;
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .step b {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .dim {
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  /* 1. The scenario. */
+  .file {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .yaml {
+    --line-height: 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    border-radius: 10px;
+    background: var(--code);
+    color: var(--code-ink);
+    font-size: 12px;
+    overflow: hidden;
+  }
+
+  .line {
+    position: relative;
+    height: var(--line-height);
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    white-space: pre;
+  }
+
+  /* The lit line: a bar behind the scenario's text, moved line to line. */
+  .cue {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 10px;
+    height: var(--line-height);
+    border-left: 3px solid var(--take);
+    background: rgba(61, 123, 255, 0.24);
+  }
+
+  /* 2. The take. */
+  .window {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .chrome {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11.5px;
+  }
+
+  .dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .dots i,
+  .mockup-bar i {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .address {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted);
+  }
+
+  .rec {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--record);
+    font-weight: 600;
+  }
+
+  .rec-dot {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--record);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .page {
+    position: relative;
+    display: block;
+    height: 204px;
+    padding: 14px 12px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+  }
+
+  .page-title {
+    display: block;
+    font-size: 15px;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .button.primary {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .new-import {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+  }
+
+  .rows {
+    display: flex;
+    flex-direction: column;
+    margin-top: 14px;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+  }
+
+  .row-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dialog {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.4);
+  }
+
+  .drop {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px dashed var(--muted);
+    border-radius: 7px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--track);
+    font-size: 12px;
+  }
+
+  .start-import {
+    align-self: flex-end;
+  }
+
+  .toast {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .toast :global(svg) {
+    color: var(--ok);
+  }
+
+  /* The cursor is drawn inside the page, as Retake draws it: anchored at the page's top right corner,
+     so that its targets, also anchored on the right, stay under it at every panel width. */
+  .cursor {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    width: 18px;
+    height: 18px;
+    margin: -2px 0 0 -4px;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+  }
+
+  /* 3. The edit. */
+  .screen {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    background: var(--screen);
+    overflow: hidden;
+  }
+
+  .idle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    color: #a3a8b3;
+  }
+
+  .frame {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(120% 90% at 30% 20%, #1d2a44, var(--screen) 70%);
+  }
+
+  .mockup {
+    display: flex;
+    flex-direction: column;
+    width: 68%;
+    margin-bottom: 12%;
+    border-radius: 6px;
+    background: #f6f6f7;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .mockup-bar {
+    display: flex;
+    gap: 3px;
+    padding: 4px 6px;
+    background: #dfe0e4;
+  }
+
+  .mockup-bar i {
+    width: 5px;
+    height: 5px;
+    background: #a3a8b3;
+  }
+
+  .mockup-page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 9px 8px 20px;
+  }
+
+  .mockup-line {
+    display: block;
+    width: 70%;
+    height: 5px;
+    border-radius: 3px;
+    background: #dfe0e4;
+  }
+
+  .mockup-line.wide {
+    width: 45%;
+    height: 7px;
+    background: #16181d;
+  }
+
+  .mockup-line.short {
+    width: 50%;
+  }
+
+  .mockup-toast {
+    position: absolute;
+    left: 8px;
+    bottom: 6px;
+    width: 34%;
+    height: 9px;
+    border-radius: 3px;
+    background: #16181d;
+  }
+
+  .caption {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 8%;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #16181d;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-align: center;
+  }
+
+  .clips {
+    position: relative;
+    display: flex;
+    gap: 3px;
+    height: 26px;
+    font-size: 11.5px;
+  }
+
+  .clips > span:not(.played) {
+    flex-basis: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    border-radius: 5px;
+    background: var(--track);
+    color: var(--muted);
+  }
+
+  /* What has played: a veil over the clips, growing from the left. */
+  .played {
+    position: absolute;
+    inset: 0;
+    border-right: 2px solid var(--take);
+    background: rgba(61, 123, 255, 0.22);
+    transform-origin: left center;
+  }
+
+  .result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+    font-size: 12.5px;
+  }
+
+  .clean {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ok);
+    font-weight: 600;
+  }
+
+  /* The last frame. */
+  .dialog,
+  .idle {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  .cursor {
+    opacity: 0;
+  }
+
+  .cue {
+    transform: translateY(calc(2 * var(--line-height)));
+  }
+
+  /* The loop. */
+  .panels {
+    --loop-duration: 14s;
+    --loop: var(--loop-duration) linear infinite;
+  }
+
+  .body {
+    animation: body var(--loop);
+  }
+
+  .focus-script {
+    animation: focus-script var(--loop);
+  }
+
+  .focus-take {
+    animation: focus-take var(--loop);
+  }
+
+  .focus-edit {
+    animation: focus-edit var(--loop);
+  }
+
+  .cue {
+    animation: cue var(--loop);
+  }
+
+  .new-import {
+    animation: press-new var(--loop);
+  }
+
+  .start-import {
+    animation: press-start var(--loop);
+  }
+
+  .cursor {
+    animation: cursor var(--loop);
+  }
+
+  .dialog {
+    animation: dialog var(--loop);
+  }
+
+  .chip {
+    animation: chip var(--loop);
+  }
+
+  .toast {
+    animation: toast var(--loop);
+  }
+
+  .idle {
+    animation: idle var(--loop);
+  }
+
+  .frame {
+    animation: frame var(--loop);
+  }
+
+  .mockup {
+    animation: zoom var(--loop);
+  }
+
+  .caption {
+    animation: caption var(--loop);
+  }
+
+  .played {
+    animation: played var(--loop);
+  }
+
+  .result {
+    animation: result var(--loop);
+  }
+
+  @keyframes body {
+    0% {
+      clip-path: inset(0 0 100% 0);
+    }
+    3%,
+    88% {
+      clip-path: inset(0);
+    }
+    92%,
+    100% {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  @keyframes focus-script {
+    0% {
+      opacity: 0;
+    }
+    3%,
+    9% {
+      opacity: 1;
+    }
+    11%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes focus-take {
+    0%,
+    9% {
+      opacity: 0;
+    }
+    11%,
+    59% {
+      opacity: 1;
+    }
+    61%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes focus-edit {
+    0%,
+    60% {
+      opacity: 0;
+    }
+    62%,
+    86% {
+      opacity: 1;
+    }
+    88%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* The lit line: the steps while the take plays them, then the caption while the editor sets it. */
+  @keyframes cue {
+    0%,
+    9% {
+      opacity: 0;
+      transform: translateY(calc(4 * var(--line-height)));
+    }
+    10%,
+    23% {
+      opacity: 1;
+      transform: translateY(calc(4 * var(--line-height)));
+    }
+    24%,
+    37% {
+      opacity: 1;
+      transform: translateY(calc(5 * var(--line-height)));
+    }
+    38%,
+    49% {
+      opacity: 1;
+      transform: translateY(calc(6 * var(--line-height)));
+    }
+    50%,
+    60% {
+      opacity: 1;
+      transform: translateY(calc(7 * var(--line-height)));
+    }
+    61%,
+    100% {
+      opacity: 1;
+      transform: translateY(calc(2 * var(--line-height)));
+    }
+  }
+
+  @keyframes cursor {
+    0%,
+    9% {
+      opacity: 0;
+      transform: translate(-150px, 130px);
+    }
+    10% {
+      opacity: 1;
+      transform: translate(-150px, 130px);
+      animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    }
+    18% {
+      opacity: 1;
+      transform: translate(-60px, 26px);
+    }
+    19% {
+      opacity: 1;
+      transform: translate(-60px, 26px) scale(0.85);
+    }
+    21% {
+      opacity: 1;
+      transform: translate(-60px, 26px);
+      animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    }
+    27%,
+    32% {
+      opacity: 1;
+      transform: translate(-140px, 128px);
+      animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    }
+    43% {
+      opacity: 1;
+      transform: translate(-75px, 165px);
+    }
+    45% {
+      opacity: 1;
+      transform: translate(-75px, 165px) scale(0.85);
+    }
+    46.5% {
+      opacity: 1;
+      transform: translate(-75px, 165px);
+      animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    }
+    56% {
+      opacity: 1;
+      transform: translate(-120px, 110px);
+    }
+    59%,
+    100% {
+      opacity: 0;
+      transform: translate(-120px, 110px);
+    }
+  }
+
+  @keyframes press-new {
+    0%,
+    18.5% {
+      transform: none;
+    }
+    19.5% {
+      transform: scale(0.93);
+    }
+    21%,
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes press-start {
+    0%,
+    44.5% {
+      transform: none;
+    }
+    45.5% {
+      transform: scale(0.93);
+    }
+    47%,
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes dialog {
+    0%,
+    21% {
+      clip-path: inset(100% 0 0 0);
+      transform: translateY(8px);
+    }
+    24%,
+    48% {
+      clip-path: inset(0);
+      transform: none;
+    }
+    50%,
+    100% {
+      clip-path: inset(100% 0 0 0);
+      transform: none;
+    }
+  }
+
+  @keyframes chip {
+    0%,
+    28% {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(-8px);
+    }
+    31%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes toast {
+    0%,
+    50% {
+      clip-path: inset(100% 0 0 0);
+      transform: translateY(6px);
+    }
+    53%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes idle {
+    0%,
+    61% {
+      clip-path: inset(0);
+    }
+    62%,
+    100% {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  @keyframes frame {
+    0%,
+    61% {
+      clip-path: inset(0 0 100% 0);
+    }
+    64%,
+    100% {
+      clip-path: inset(0);
+    }
+  }
+
+  /* A slow zoom on the action, as the editor keys it to the take's timeline. */
+  @keyframes zoom {
+    0%,
+    66% {
+      transform: none;
+    }
+    80%,
+    100% {
+      transform: scale(1.08) translate(-2%, 2%);
+    }
+  }
+
+  @keyframes caption {
+    0%,
+    64% {
+      clip-path: inset(100% 0 0 0);
+      transform: translateY(6px);
+    }
+    67%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes played {
+    0%,
+    62% {
+      transform: scaleX(0);
+    }
+    84%,
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes result {
+    0%,
+    84% {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(4px);
+    }
+    87%,
+    100% {
+      clip-path: inset(0);
+      transform: none;
+    }
+  }
+
+  @keyframes pulse {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  /* Moving content that loops needs a way to stop it, placed before it: a checkbox does it
+     without JavaScript. Its accessible name stays "Pause the animation"; checked means paused. */
+  .pause {
+    align-self: flex-end;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .pause:hover {
+    color: var(--ink);
+  }
+
+  .pause:has(:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .pause input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .when-paused,
+  .pause :global(.icon-play),
+  .pause:has(:checked) .when-playing,
+  .pause:has(:checked) :global(.icon-pause) {
+    display: none;
+  }
+
+  .pause:has(:checked) .when-paused {
+    display: inline;
+  }
+
+  .pause:has(:checked) :global(.icon-play) {
+    display: block;
+  }
+
+  .demo:has(.pause :checked) .panels * {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panels * {
+      animation: none;
+    }
+
+    .pause {
+      display: none;
+    }
+  }
+</style>

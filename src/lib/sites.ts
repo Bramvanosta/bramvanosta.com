@@ -4,7 +4,7 @@
 
 export const ROOT_DOMAIN = "bramvanosta.com";
 
-export const SUBSITES = ["ranch"] as const;
+export const SUBSITES = ["ranch", "retake"] as const;
 
 export type Subsite = (typeof SUBSITES)[number];
 

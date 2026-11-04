@@ -1,0 +1,52 @@
+---
+// The Studio on a scenario, in the visitor's colour scheme, as AVIF or WebP at the width the layout needs.
+// From Retake's repository (.github/assets/), filmed on its invented Northfield fixture.
+import type { ImageMetadata } from "astro";
+import { getImage } from "astro:assets";
+import dark from "../../assets/retake/studio-script-dark.png";
+import light from "../../assets/retake/studio-script-light.png";
+
+const widths = [640, 828, 1056, 1400, 1800];
+// The page is 1120 px wide with 32 px of padding, 20 px on a phone.
+const sizes = "(min-width: 1120px) 1056px, (min-width: 601px) calc(100vw - 64px), calc(100vw - 40px)";
+
+async function srcset(src: ImageMetadata, format: "avif" | "webp") {
+  const images = await Promise.all(widths.map((width) => getImage({ src, width, format })));
+  return images.map((image, index) => `${image.src} ${widths[index]}w`).join(", ");
+}
+
+const [darkAvif, darkWebp, lightAvif, lightWebp] = await Promise.all([
+  srcset(dark, "avif"),
+  srcset(dark, "webp"),
+  srcset(light, "avif"),
+  srcset(light, "webp"),
+]);
+const fallback = await getImage({ src: light, width: 1056, format: "webp" });
+---
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" type="image/avif" srcset={darkAvif} sizes={sizes} />
+  <source media="(prefers-color-scheme: dark)" type="image/webp" srcset={darkWebp} sizes={sizes} />
+  <source type="image/avif" srcset={lightAvif} sizes={sizes} />
+  <img
+    src={fallback.src}
+    srcset={lightWebp}
+    sizes={sizes}
+    width={light.width}
+    height={light.height}
+    alt="Retake's Studio on a scenario in Script mode: its scenes on the left, each step as a frame of the latest capture, and the selected step's form on the right"
+    loading="lazy"
+    decoding="async"
+  />
+</picture>
+
+<style>
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.35);
+  }
+</style>

@@ -1,6 +1,6 @@
 ---
 // A shell command with a copy button. copy.ts reveals the button: without JavaScript it stays hidden.
-import Icon from "../Icon.astro";
+import Icon from "./Icon.astro";
 
 interface Props {
   command: string;
@@ -18,7 +18,7 @@ const { command } = Astro.props;
   <span class="visually-hidden" role="status" data-copy-status></span>
 </div>
 
-<script src="../../scripts/copy.ts"></script>
+<script src="../scripts/copy.ts"></script>
 
 <style>
   .command {

@@ -4,6 +4,7 @@ import Clock from "../components/home/Clock.astro";
 import Tulip from "../components/home/Tulip.astro";
 import JsonLd from "../components/JsonLd.astro";
 import RanchMark from "../components/ranch/RanchMark.astro";
+import RetakeMark from "../components/retake/RetakeMark.astro";
 import HomeLayout from "../layouts/Home.astro";
 import { link } from "../lib/links.ts";
 import { PERSON, PROFILE } from "../lib/profile.ts";
@@ -27,7 +28,7 @@ const services = [
 ];
 
 // A subsite's mark, shown next to its project's name.
-const marks: Partial<Record<Subsite, typeof RanchMark>> = { ranch: RanchMark };
+const marks: Partial<Record<Subsite, typeof RanchMark>> = { ranch: RanchMark, retake: RetakeMark };
 
 const projects = (await getCollection("projects", ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order)
