@@ -3,11 +3,17 @@ import Icon, { type IconName } from "../../components/Icon.astro";
 import JsonLd from "../../components/JsonLd.astro";
 import RetakeMark from "../../components/retake/RetakeMark.astro";
 import Screenshot from "../../components/retake/Screenshot.astro";
+import Shot from "../../components/retake/Shot.astro";
 import TakeScene from "../../components/retake/TakeScene.astro";
 import RetakeLayout from "../../layouts/Retake.astro";
 import { PERSON } from "../../lib/profile.ts";
 import { RETAKE } from "../../lib/retake.ts";
 import { publicUrl } from "../../lib/sites.ts";
+import studioEdit from "../../assets/retake/studio-edit.png";
+import studioReview from "../../assets/retake/studio-review.png";
+import videoDocument from "../../assets/retake/video-document.webp";
+import videoNotification from "../../assets/retake/video-notification.webp";
+import videoProposal from "../../assets/retake/video-proposal.webp";
 
 const description =
   "Retake turns a written YAML scenario into a finished product video: a headless capture with the cursor drawn in the page, edited automatically with themeable components. A macOS app, driven by Claude through MCP.";
@@ -86,6 +92,39 @@ const setup = [
   { name: "Claude Code", detail: "the Retake plugin", action: "Run" },
   { name: "Claude Desktop", detail: "the retake MCP server", action: "Add…" },
   { name: "Notifications", detail: "when a job ends out of sight", action: "Allow…" },
+];
+
+// More of the Studio, two to a row, under its main screenshot.
+const screens = [
+  {
+    src: studioEdit,
+    alt: "The Edit screen: the take's player above its timeline of segments, captions, steps, camera, speed, markers and comments, with the layout and theme switches on the right",
+    caption: "Edit: the take on a timeline. Switch a layout or a theme, and only the edit changes.",
+  },
+  {
+    src: studioReview,
+    alt: "The Review screen of a render: 0 errors, 0 warnings, 0 notes, then its contact sheets and key frames",
+    caption: "Review: the render’s checks, contact sheets and key frames.",
+  },
+];
+
+// Frames of a video Retake filmed and edited, three to a row.
+const frames = [
+  {
+    src: videoNotification,
+    alt: "A coffee's product page in a card layout, a caption below it, and the supplier's web notification of a new quote request overlaid at the top right",
+    caption: "The web notification the product sent, captured and overlaid.",
+  },
+  {
+    src: videoProposal,
+    alt: "The roaster's proposal page, with a callout on its total of €720.00 including VAT",
+    caption: "A callout on the total, keyed to the step that shows it.",
+  },
+  {
+    src: videoDocument,
+    alt: "The quotation PDF the product generated, shown as a document card beside the line: a real PDF, ready to share with your team",
+    caption: "The PDF the product generated, as a document card.",
+  },
 ];
 
 // What Claude calls, in order, to make a video (Retake's scenario skill).
@@ -181,6 +220,35 @@ const structuredData = {
         </p>
       </div>
       <Screenshot />
+      <div class="shots">
+        {screens.map((screen) => (
+          <Shot
+            {...screen}
+            sizes="(min-width: 1120px) 520px, (min-width: 721px) calc(50vw - 40px), calc(100vw - 40px)"
+          />
+        ))}
+      </div>
+    </section>
+
+    <section id="made" aria-labelledby="made-title">
+      <div class="head">
+        <p class="kicker">Made with Retake</p>
+        <h2 class="title" id="made-title">
+          Frames from a finished video
+        </h2>
+        <p class="lede">
+          Retake filmed and edited Northfield, the invented coffee wholesale platform its repository ships to film:
+          captions, cards, overlays and what the product sent along the way.
+        </p>
+      </div>
+      <div class="shots three">
+        {frames.map((frame) => (
+          <Shot
+            {...frame}
+            sizes="(min-width: 1120px) 341px, (min-width: 901px) calc(33vw - 32px), (min-width: 721px) calc(50vw - 40px), calc(100vw - 40px)"
+          />
+        ))}
+      </div>
     </section>
 
     <section id="features" aria-labelledby="features-title">
@@ -506,6 +574,29 @@ const structuredData = {
 
   .tour {
     gap: 40px;
+  }
+
+  .shots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 24px;
+  }
+
+  .shots.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 900px) {
+    .shots.three {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 720px) {
+    .shots,
+    .shots.three {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .grid {

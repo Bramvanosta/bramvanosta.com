@@ -48,7 +48,7 @@ Each site’s icons (`favicon.ico`, `apple-touch-icon.png`) and social card (`og
 
 - the site’s `favicon.svg`, for `favicon.ico`;
 - `scripts/images/touch-icon-<site>.svg` for `apple-touch-icon.png`, or the favicon when the site has none (the home page’s is the tile of the Bram van Osta design system, with the square corners iOS expects);
-- its card, `scripts/images/og-<site>.html`, which also uses the fonts from `node_modules` and, for Ranch, the screenshot in `src/assets/ranch/`.
+- its card, `scripts/images/og-<site>.html`, which also uses the fonts from `node_modules` and, for Ranch and Retake, a screenshot in `src/assets/<site>/`.
 
 ```bash
 npm run images
@@ -74,7 +74,7 @@ npm run font
 
 Ranch’s screenshots in `src/assets/ranch/` come from the Ranch repository (`.github/assets/`). Astro turns them into AVIF and WebP at build time. A presentation video will take their place on Ranch’s page (`src/components/ranch/Screenshot.astro`).
 
-Retake’s page draws its Studio in HTML for now (`src/components/retake/Screenshot.astro`), until the screenshots of the Retake repository (`.github/assets/`) take its place. Its mark is the “two takes” of that repository (`packages/ui/src/mark.ts`), copied in `src/components/retake/RetakeMark.astro` and `public/retake/favicon.svg`. Its page says the first release is on its way until `released` is set in `src/lib/retake.ts`.
+Retake’s screenshots and video frames in `src/assets/retake/` come from the Retake repository (`.github/assets/`), turned into AVIF and WebP the same way. Its mark is the “two takes” of that repository (`packages/ui/src/mark.ts`), copied in `src/components/retake/RetakeMark.astro` and `public/retake/favicon.svg`. Its page says the first release is on its way until `released` is set in `src/lib/retake.ts`.
 
 ### Adding a subsite
 
