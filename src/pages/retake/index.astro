@@ -371,7 +371,7 @@ const structuredData = {
           <p>For macOS 15 or later on Apple silicon (no Intel build yet). It updates itself, only when you click.</p>
           <pre tabindex="0">{`${RETAKE.brew}\n# or, with the release candidates too:\n${RETAKE.brewBeta}`}</pre>
           <a class="more" href={RETAKE.releases}>
-            Or get the .dmg from the latest release <span aria-hidden="true">→</span>
+            Or get the .dmg from the latest release <Icon name="arrow-right" size={15} class="arrow" />
           </a>
         </div>
         <div class="card" id="download-source">
@@ -379,7 +379,8 @@ const structuredData = {
           <p>macOS or Linux, with Node.js 22 or later, pnpm 10, and ffmpeg 5.1 or later.</p>
           <pre tabindex="0">{RETAKE.source}</pre>
           <a class="more" href={`${RETAKE.repo}#readme`}>
-            Quick start, scenario language and commands, in the README <span aria-hidden="true">→</span>
+            Quick start, scenario language and commands, in the README{" "}
+            <Icon name="arrow-right" size={15} class="arrow" />
           </a>
         </div>
       </div>
@@ -789,6 +790,12 @@ const structuredData = {
 
   .more:hover {
     text-decoration: underline;
+  }
+
+  /* The arrow after the link's text (Icon.astro, a component of its own: hence :global). */
+  .more :global(.arrow) {
+    display: inline-block;
+    vertical-align: -0.125em;
   }
 
   .closing {

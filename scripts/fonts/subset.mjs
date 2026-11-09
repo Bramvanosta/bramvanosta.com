@@ -13,15 +13,17 @@ const folder = new URL("../../src/assets/fonts/", import.meta.url);
 
 const ascii = Array.from({ length: 0x7f - 0x20 }, (_, index) => String.fromCharCode(0x20 + index)).join("");
 const punctuation = "·‘’“”–—…→↗";
+// The French home page: accented letters, guillemets, and the no-break spaces before : ? ! ;
+const french = "àâäçéèêëîïôöùûüÿœæÀÂÄÇÉÈÊËÎÏÔÖÙÛÜŸŒÆ«»\u00a0\u202f";
 
 const fonts = [
   // Ranch's wordmark and labels.
   { family: "jetbrains-mono", weight: 600, text: ascii + punctuation },
   // The home page: its text (and its footer's ©), its labels, its 404 title, and the name in its logo only.
-  { family: "inter", weight: 400, text: ascii + punctuation + "©" },
-  { family: "inter", weight: 600, text: ascii + punctuation },
+  { family: "inter", weight: 400, text: ascii + punctuation + french + "©" },
+  { family: "inter", weight: 600, text: ascii + punctuation + french },
   { family: "inter-tight", weight: 700, text: ascii + punctuation },
-  { family: "ibm-plex-mono", weight: 400, text: ascii + punctuation },
+  { family: "ibm-plex-mono", weight: 400, text: ascii + punctuation + french },
   { family: "newsreader", weight: 500, text: PROFILE.name },
 ];
 

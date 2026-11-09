@@ -26,6 +26,7 @@ A project’s own site is a **subsite**: it is built under `src/pages/<subsite>/
 - **Links between hosts** go through `link()` (`src/lib/links.ts`): the build path in development, the public URL in production.
 - **Each host gets** its own `robots.txt` and `sitemap.xml` (`src/lib/site-files.ts`), 404 page, icons and social card.
 - **Projects** are Markdown files in `src/content/projects/`, listed on the home page in their `order`. One with `draft: true` is not listed, but its file is public like the rest of the repository.
+- **The home page speaks English and French**: `/` and `/fr/`, one component (`src/components/home/HomePage.astro`) with its words in `src/lib/home-copy.ts`. The Worker sends a browser that prefers French from `/` to `/fr/`; the switch next to the clock links to `/fr/?lang=fr` or `/?lang=en`, which the Worker keeps in a `lang` cookie for a year (`src/lib/i18n.ts`). `npm run dev` has no Worker: try the detection with `npm run preview`. Ranch’s and Retake’s sites stay in English.
 
 ## Development
 

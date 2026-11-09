@@ -2,6 +2,7 @@
 // <subsite>.bramvanosta.com, from dist/<subsite>/. Runs before the static assets
 // (run_worker_first) because the same path means a different file per host.
 
+import { DEFAULT_LOCALE, HOME_PATHS, isLocale, LANGUAGE_PARAM, LOCALES, preferredLocale } from "../src/lib/i18n.ts";
 import { isSubsite, ROOT_DOMAIN, subsiteOfPath, type Subsite } from "../src/lib/sites.ts";
 
 export interface Env {
@@ -55,6 +56,39 @@ export function route(url: URL): Route {
   return { kind: "asset", pathname: `/${subsite}${pathname}`, subsite };
 }
 
+/** A language picked with the switch is kept for a year. */
+const LANGUAGE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+/**
+ * Where the home page sends a visitor for their language, if elsewhere. A link of the language
+ * switch (/fr/?lang=fr) keeps the choice in a cookie and loses its parameter. The English home
+ * page, at /, sends a visitor to /fr/ when they picked French, or when they never picked and their
+ * browser prefers French. Any other page is left as asked for: a link to /fr/ shows French.
+ */
+export function languageRedirect(url: URL, headers: Headers): { location: string; cookie?: string } | undefined {
+  const home = LOCALES.find((locale) => HOME_PATHS[locale] === url.pathname);
+  if (!home) return undefined;
+
+  const target = new URL(url);
+  const picked = url.searchParams.get(LANGUAGE_PARAM);
+  if (isLocale(picked)) {
+    target.searchParams.delete(LANGUAGE_PARAM);
+    target.pathname = HOME_PATHS[picked];
+    const cookie = `${LANGUAGE_PARAM}=${picked}; Path=/; Max-Age=${LANGUAGE_COOKIE_MAX_AGE}; SameSite=Lax; Secure`;
+    return { location: target.href, cookie };
+  }
+
+  if (home !== DEFAULT_LOCALE) return undefined;
+  const kept = headers.get("Cookie")?.match(new RegExp(`(?:^|;\\s*)${LANGUAGE_PARAM}=([^;]*)`))?.[1];
+  const locale = isLocale(kept) ? kept : preferredLocale(headers.get("Accept-Language"));
+  if (locale === home) return undefined;
+  target.pathname = HOME_PATHS[locale];
+  return { location: target.href };
+}
+
+/** The English home page's answer depends on these request headers (see languageRedirect). */
+const LANGUAGE_VARY = "Accept-Language, Cookie";
+
 const SECURITY_HEADERS: Record<string, string> = {
   "Content-Security-Policy": [
     "default-src 'self'",
@@ -88,6 +122,15 @@ export default {
       return withSecurityHeaders(new Response(null, { status: 301, headers: { Location: target.location } }));
     }
 
+    const isHome = !target.subsite && target.pathname === HOME_PATHS[DEFAULT_LOCALE];
+    const language = target.subsite ? undefined : languageRedirect(url, request.headers);
+    if (language) {
+      const headers = new Headers({ Location: language.location, "Cache-Control": "no-store" });
+      if (language.cookie) headers.set("Set-Cookie", language.cookie);
+      if (isHome) headers.set("Vary", LANGUAGE_VARY);
+      return withSecurityHeaders(new Response(null, { status: 302, headers }));
+    }
+
     const assetUrl = new URL(url);
     assetUrl.pathname = target.pathname;
     const asset = await env.ASSETS.fetch(new Request(assetUrl, request));
@@ -99,6 +142,7 @@ export default {
     } else if (asset.ok && ICONS.test(target.pathname)) {
       response.headers.set("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800");
     }
+    if (isHome) response.headers.set("Vary", LANGUAGE_VARY);
 
     // The assets layer adds or drops trailing slashes with a temporary redirect to the built
     // path: make it permanent, at the path the visitor sees on this host.
