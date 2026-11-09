@@ -1,0 +1,259 @@
+---
+// A strip of landscape under the name, in thin strokes, that scrolls past forever like the road of
+// a runner game: a bike riding along the coast of the Landes, through the pines, over the dunes
+// and their marram grass, past a few tulips, a lifeguard tower, the waves and a lighthouse, under
+// the gulls.
+// Things come along unevenly, alone or by two or three, like on a real road. Decoration only,
+// hidden from assistive technology; it stands still for visitors who ask for less motion.
+
+/** The scene repeats every TILE units; it is drawn twice, and scrolls by one tile per loop. */
+const TILE = 1440;
+
+const CLOUD = "M-10 18q0 -4 4 -4q1 -4 6 -4q5 0 6 4q4 0 4 4z";
+
+/** The tulip of the logo (Tulip.astro), at half size: the one nod to where I come from. */
+const FLOWER = "M9 4.5L12.75 9L16 3.5L19.25 9L23 4.5V13A7 7 0 0 1 9 13Z";
+
+/**
+ * A maritime pine, its foot at x 0: a tall trunk that leans a little, one branch, a flat crown.
+ * y of the bottom of its crown, the crown's scale and the trunk's lean.
+ */
+function pine(crown: number, scale: number, lean: number): string {
+  const n = (value: number) => Number((value * scale).toFixed(2));
+  return [
+    `M0 56C0 ${(56 + crown) / 2} ${-lean} ${crown + 8} ${lean} ${crown}`,
+    `M0 ${crown + 14}l${lean < 0 ? 5 : -5} -4`,
+    `M${lean - n(11)} ${crown + 1}q${n(-3)} ${n(-4)} ${n(2)} ${n(-6)}q${n(1)} ${n(-4)} ${n(6)} ${n(-4)}`,
+    `q${n(3)} ${n(-3)} ${n(8)} ${n(-1)}q${n(5)} 0 ${n(5)} ${n(4)}q${n(3)} ${n(3)} ${n(-1)} ${n(5)}z`,
+  ].join("");
+}
+
+/**
+ * One thing along the road, its foot at x on the ground. `scale` shrinks it about its foot, for
+ * things far off, which are also `faint`; `y` places what flies or floats, the foot of a tuft of
+ * grass on a dune, and the top of a tulip.
+ */
+interface Item {
+  kind: "pine" | "dune" | "grass" | "tulip" | "lifeguard" | "lighthouse" | "wave" | "gull" | "cloud";
+  x: number;
+  y?: number;
+  scale?: number;
+  faint?: boolean;
+  pine?: [crown: number, scale: number, lean: number];
+}
+
+// The ride, in order: the forest, the dunes, the beach and the ocean, the forest again. The gaps
+// are uneven on purpose, and never long.
+const SCENE: Item[] = [
+  { kind: "pine", x: 22, pine: [27, 1, 1] },
+  { kind: "pine", x: 38, pine: [33, 0.8, -1] },
+  { kind: "pine", x: 54, pine: [23, 1.1, 1] },
+  { kind: "gull", x: 70, y: 10 },
+  { kind: "pine", x: 72, pine: [31, 0.85, 0] },
+  { kind: "pine", x: 88, pine: [26, 1, -1] },
+  { kind: "pine", x: 106, pine: [34, 0.75, 1] },
+  { kind: "cloud", x: 140, y: 16 },
+  { kind: "pine", x: 158, pine: [29, 0.9, -1] },
+  { kind: "grass", x: 180 },
+  { kind: "pine", x: 204, pine: [32, 0.8, 1] },
+  { kind: "pine", x: 218, pine: [27, 0.95, -1] },
+  { kind: "dune", x: 238, faint: true },
+  { kind: "grass", x: 266, y: 44 },
+  { kind: "grass", x: 292, y: 43 },
+  { kind: "tulip", x: 318, y: 37 },
+  { kind: "tulip", x: 327, y: 34 },
+  { kind: "tulip", x: 335, y: 38 },
+  { kind: "grass", x: 350 },
+  { kind: "lifeguard", x: 382 },
+  { kind: "gull", x: 404, y: 14 },
+  { kind: "wave", x: 424, y: 50 },
+  { kind: "wave", x: 458, y: 46 },
+  { kind: "cloud", x: 500, y: 12 },
+  { kind: "wave", x: 518, y: 51 },
+  { kind: "gull", x: 542, y: 20 },
+  { kind: "wave", x: 566, y: 48 },
+  { kind: "lighthouse", x: 622 },
+  { kind: "wave", x: 652, y: 50 },
+  { kind: "gull", x: 690, y: 16 },
+  { kind: "grass", x: 712 },
+  { kind: "pine", x: 734, pine: [30, 0.85, 1] },
+  { kind: "pine", x: 782, pine: [27, 1, -1] },
+  { kind: "pine", x: 796, pine: [33, 0.75, 1] },
+  { kind: "pine", x: 814, pine: [24, 1.05, 0] },
+  { kind: "cloud", x: 846, y: 18 },
+  { kind: "pine", x: 880, pine: [31, 0.8, -1] },
+  { kind: "gull", x: 902, y: 12 },
+  { kind: "pine", x: 930, pine: [26, 1, 1] },
+  { kind: "pine", x: 946, pine: [32, 0.8, -1] },
+  { kind: "dune", x: 972, faint: true },
+  { kind: "grass", x: 1004, y: 43 },
+  { kind: "pine", x: 1080, pine: [30, 0.85, 1] },
+  { kind: "grass", x: 1100 },
+  { kind: "wave", x: 1128, y: 49 },
+  { kind: "wave", x: 1162, y: 45 },
+  { kind: "gull", x: 1184, y: 18 },
+  { kind: "pine", x: 1222, pine: [28, 0.95, -1] },
+  { kind: "pine", x: 1240, pine: [33, 0.75, 1] },
+  { kind: "cloud", x: 1272, y: 14 },
+  { kind: "tulip", x: 1296, y: 36 },
+  { kind: "tulip", x: 1305, y: 38 },
+  { kind: "pine", x: 1342, pine: [29, 0.9, 1] },
+  { kind: "gull", x: 1380, y: 16 },
+  { kind: "pine", x: 1410, pine: [31, 0.8, -1] },
+];
+
+function place({ x, scale = 1 }: Item): string {
+  return scale === 1 ? `translate(${x} 0)` : `translate(${x} 56) scale(${scale}) translate(0 -56)`;
+}
+---
+
+<div class="landscape" aria-hidden="true" style={`--tile: ${TILE}px`}>
+  <svg class="road" viewBox={`0 0 ${TILE * 2} 64`} width={TILE * 2} height="64">
+    {[0, TILE].map((x) => (
+      <g transform={`translate(${x} 0)`}>
+        <path d={`M0 56H${TILE}`} />
+        <path class="faint" d="M70 60h3M236 59h2M410 61h3M620 60h2M880 59h3M1150 61h2M1330 60h3" />
+        {SCENE.map((item) => (
+          <g transform={place(item)} class={item.faint ? "faint" : undefined}>
+            {item.kind === "pine" && item.pine && <path d={pine(...item.pine)} />}
+            {item.kind === "tulip" && (
+              <>
+                <path d={`M0 56V${(item.y ?? 37) + 9}M0 52q-5 -1 -6 -7`} />
+                <path class="flower" d={FLOWER} transform={`translate(-8 ${item.y ?? 37}) scale(0.5)`} />
+              </>
+            )}
+            {item.kind === "dune" && <path d="M0 56Q25 38 47 41Q67 44 87 56" />}
+            {item.kind === "grass" && (
+              <path
+                class="faint"
+                d={`M0 ${item.y ?? 56}q-1 -4 -4 -6M0 ${item.y ?? 56}q0 -5 1 -8M0 ${item.y ?? 56}q1 -3 4 -5`}
+              />
+            )}
+            {item.kind === "lifeguard" && (
+              <>
+                <path d="M-6 56L-4 36M6 56L4 36M-5 46h10M-6 36h12v-8h-12zM-7 28l7 -4l7 4M0 24v-8" />
+                <path class="flag" d="M0 16l6 2l-6 2z" />
+              </>
+            )}
+            {item.kind === "lighthouse" && (
+              <>
+                <path d="M-5 56L-3 30H3L5 56M-4 47h8M-3.5 39h7M-4 30v-4h8v4M-3 26l3 -3l3 3" />
+                <path class="beam" d="M6 27l9 -3M6 29l9 3M-6 27l-9 -3M-6 29l-9 3" />
+              </>
+            )}
+            {item.kind === "wave" && <path class="sea" d={`M0 ${item.y ?? 50}q6 -4 12 0t12 0`} />}
+            {item.kind === "gull" && <path d={`M0 ${item.y ?? 16}q2 -2 4 0q2 -2 4 0`} />}
+            {item.kind === "cloud" && (
+              <path class="faint" transform={`translate(0 ${(item.y ?? 18) - 18})`} d={CLOUD} />
+            )}
+          </g>
+        ))}
+      </g>
+    ))}
+  </svg>
+
+  <svg class="rider" viewBox="0 0 48 64" width="48" height="64">
+    <g class="wheel">
+      <circle cx="10" cy="49" r="7" />
+      <path d="M3 49h14M10 42v14" />
+    </g>
+    <g class="wheel">
+      <circle cx="36" cy="49" r="7" />
+      <path d="M29 49h14M36 42v14" />
+    </g>
+    <path d="M10 49H21L17 35M21 49Q23 40 32.2 37M10 49L17.5 37M36 49L31 33q-2 -2 -5 -1.5M14.5 34.5h5.5" />
+    <circle cx="22" cy="18" r="3" />
+    <path d="M17.5 33.5L21 21M21 23.5L26 31.5M17.5 33.5L24 39L21 49M17.5 33.5L22 40L18 47" />
+  </svg>
+</div>
+
+<style>
+  /* The strip fades out at both ends, so the scene seems to come from and go somewhere. */
+  .landscape {
+    position: relative;
+    height: 64px;
+    overflow: hidden;
+    color: var(--ink-muted);
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+
+  svg {
+    position: absolute;
+    top: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .road {
+    left: 0;
+  }
+
+  /* Things far off are drawn smaller, with the same thin stroke. */
+  .road :global(*) {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .rider {
+    left: 10%;
+    color: var(--ink);
+  }
+
+  .faint {
+    opacity: 0.5;
+  }
+
+  .sea {
+    stroke: var(--delft);
+  }
+
+  .flower {
+    fill: var(--tulip-flower);
+    stroke: none;
+  }
+
+  .flag {
+    fill: var(--vermillion);
+    stroke: none;
+  }
+
+  .wheel {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* One tile (1440 px) a minute: 24 px a second. */
+  @media (prefers-reduced-motion: no-preference) {
+    .road {
+      animation: scroll 60s linear infinite;
+    }
+
+    .wheel {
+      animation: spin 1.8s linear infinite;
+    }
+
+    .beam {
+      animation: blink 3s steps(1, end) infinite;
+    }
+  }
+
+  @keyframes scroll {
+    to {
+      translate: calc(var(--tile) * -1) 0;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+</style>

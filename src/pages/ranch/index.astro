@@ -201,7 +201,7 @@ const structuredData = {
           <p>One universal app for Apple Silicon and Intel. It updates itself, only when you click.</p>
           <pre tabindex="0">{RANCH.brew}</pre>
           <a class="more" href={RANCH.releases}>
-            Get the .dmg from the latest release <span aria-hidden="true">→</span>
+            Get the .dmg from the latest release <Icon name="arrow-right" size={15} class="arrow" />
           </a>
         </div>
         <div class="card" id="install-linux">
@@ -209,7 +209,7 @@ const structuredData = {
           <p>x86_64. Needs a Secret Service provider: GNOME Keyring, KWallet or KeePassXC.</p>
           <pre tabindex="0">{RANCH.linux}</pre>
           <a class="more" href={RANCH.releases}>
-            Get the .deb, .rpm or AppImage from the latest release <span aria-hidden="true">→</span>
+            Get the .deb, .rpm or AppImage from the latest release <Icon name="arrow-right" size={15} class="arrow" />
           </a>
         </div>
         <div class="card server">
@@ -220,7 +220,7 @@ const structuredData = {
           </p>
           <pre tabindex="0">{RANCH.server}</pre>
           <a class="more" href={RANCH.serverGuide}>
-            Server guide: TLS, sign-in with OIDC, configuration <span aria-hidden="true">→</span>
+            Server guide: TLS, sign-in with OIDC, configuration <Icon name="arrow-right" size={15} class="arrow" />
           </a>
         </div>
       </div>
@@ -477,6 +477,12 @@ const structuredData = {
 
   .more:hover {
     text-decoration: underline;
+  }
+
+  /* The arrow after the link's text (Icon.astro, a component of its own: hence :global). */
+  .more :global(.arrow) {
+    display: inline-block;
+    vertical-align: -0.125em;
   }
 
   .closing {

@@ -1,0 +1,438 @@
+---
+// The home page, in one of its languages: src/pages/index.astro in English, src/pages/fr/ in French.
+// Its words are in home-copy.ts.
+import { getCollection } from "astro:content";
+import HomeLayout from "../../layouts/Home.astro";
+import { COPY } from "../../lib/home-copy.ts";
+import { HOME_PATHS, LANGUAGE_PARAM, LOCALES, type Locale } from "../../lib/i18n.ts";
+import { link } from "../../lib/links.ts";
+import { PERSON, PROFILE } from "../../lib/profile.ts";
+import { publicUrl, type Subsite } from "../../lib/sites.ts";
+import Icon from "../Icon.astro";
+import JsonLd from "../JsonLd.astro";
+import RanchMark from "../ranch/RanchMark.astro";
+import Clock from "./Clock.astro";
+import Landscape from "./Landscape.astro";
+import Tulip from "./Tulip.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = COPY[locale];
+const path = Astro.url.pathname;
+
+const other = LOCALES.find((candidate) => candidate !== locale) ?? locale;
+const switchHref = `${link(HOME_PATHS[other], path)}?${LANGUAGE_PARAM}=${other}`;
+const alternates = [
+  ...LOCALES.map((alternate) => ({
+    hreflang: alternate,
+    href: publicUrl(HOME_PATHS[alternate]).href,
+  })),
+  { hreflang: "x-default", href: publicUrl("/").href },
+];
+
+// A subsite's mark, shown next to its project's name.
+const marks: Partial<Record<Subsite, typeof RanchMark>> = { ranch: RanchMark };
+
+const projects = (await getCollection("projects", ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map(({ data }) => {
+    const subsite = "subsite" in data ? data.subsite : undefined;
+    const target = "subsite" in data ? publicUrl(`/${data.subsite}/`) : new URL(data.url);
+    return {
+      ...data,
+      summary: (locale === "fr" && data.summaryFr) || data.summary,
+      href: subsite ? link(`/${subsite}/`, path) : target.href,
+      host: target.host,
+      Mark: subsite && marks[subsite],
+    };
+  });
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: PROFILE.name, url: publicUrl("/").href, inLanguage: [...LOCALES] },
+    {
+      ...PERSON,
+      jobTitle: copy.role,
+      email: PROFILE.email,
+      address: { "@type": "PostalAddress", addressCountry: "FR" },
+      knowsAbout: [
+        "Product management",
+        "Web development",
+        "Mobile development",
+        "API design",
+        "Model Context Protocol",
+        "AI adoption",
+        "TypeScript",
+        "Python",
+        "Go",
+        "PHP",
+        "Rust",
+        "React",
+        "React Native",
+        "iOS",
+        "Android",
+      ],
+      sameAs: [PROFILE.github, PROFILE.linkedin],
+    },
+  ],
+};
+---
+
+<HomeLayout
+  title={copy.title}
+  description={copy.description}
+  imageAlt={copy.imageAlt}
+  locale={locale}
+  alternates={alternates}
+>
+  <JsonLd slot="head" data={structuredData} />
+  <main>
+    <header class="intro">
+      <div class="name">
+        <div class="logo">
+          <button
+            class="tulip"
+            type="button"
+            aria-label={copy.tulip.label}
+            aria-expanded="false"
+            aria-controls="tulip-note"
+            data-tulip
+          >
+            <Tulip />
+          </button>
+          <h1>{PROFILE.name}</h1>
+        </div>
+        <p class="meta">
+          {copy.location}
+          <Clock />
+          {" · "}
+          <a class="switch" href={switchHref} hreflang={other} lang={other}>
+            {copy.switchLabel}
+          </a>
+        </p>
+        <p class="meta tulip-note" id="tulip-note" hidden>
+          {copy.tulip.note}
+        </p>
+      </div>
+      <Landscape />
+      <p class="lead">
+        {copy.role}. {copy.lead[0]}{" "}
+        <span class="flourish">
+          {copy.lead[1]}
+          <svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M3 8.5C38 4 78 3.5 112 5.5S170 9.5 197 4.5" pathLength="1"></path>
+          </svg>
+        </span>
+      </p>
+      <p class="links">
+        <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
+        <a href={PROFILE.github}>
+          GitHub <Icon name="arrow-up-right" size={14} class="arrow" />
+        </a>
+        <a href={PROFILE.linkedin}>
+          LinkedIn <Icon name="arrow-up-right" size={14} class="arrow" />
+        </a>
+      </p>
+    </header>
+
+    <section aria-labelledby="work">
+      <h2 class="kicker" id="work">
+        <span aria-hidden="true">01</span>
+        {copy.sections.work}
+      </h2>
+      <div class="entries">
+        {copy.services.map((service) => (
+          <div class="entry">
+            <h3>{service.title}</h3>
+            <p class="text">{service.text}</p>
+          </div>
+        ))}
+      </div>
+      <p>
+        {copy.contact[0]} <a href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>, {copy.contact[1]}{" "}
+        <a href={PROFILE.linkedin}>
+          {copy.contact[2]}&nbsp;
+          <Icon name="arrow-up-right" size={14} class="arrow" />
+        </a>
+      </p>
+    </section>
+
+    <section aria-labelledby="about">
+      <h2 class="kicker" id="about">
+        <span aria-hidden="true">02</span>
+        {copy.sections.about}
+      </h2>
+      <p class="text">{copy.about}</p>
+    </section>
+
+    <section aria-labelledby="projects">
+      <h2 class="kicker" id="projects">
+        <span aria-hidden="true">03</span>
+        {copy.sections.projects}
+      </h2>
+      <div class="entries">
+        {projects.map(({ Mark, ...project }) => (
+          <div class="entry">
+            <h3>
+              <a class="project" href={project.href}>
+                {Mark && <Mark size={18} class="mark" />}
+                {project.name}
+              </a>
+            </h3>
+            <p class="text">{project.summary}</p>
+            {project.stack.length > 0 && <p class="meta">{project.stack.join(" · ")}</p>}
+            <p class="links">
+              <a href={project.href}>
+                {project.host} <Icon name="arrow-right" size={14} class="arrow" />
+              </a>
+              {project.repo && (
+                <a href={project.repo}>
+                  {copy.source} <Icon name="arrow-up-right" size={14} class="arrow" />
+                </a>
+              )}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
+</HomeLayout>
+
+<script src="../../scripts/tulip.ts"></script>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: 72px;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .name {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* The logo, as the design system draws it: the tulip at 1.4 times the text size (--s), 0.3 times
+     apart, the name in Newsreader at 1.06 times. */
+  .logo {
+    --s: 28px;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--s) * 0.3);
+    font-family: var(--font-newsreader);
+    font-size: calc(var(--s) * 1.06);
+    line-height: 1;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .logo h1 {
+    font: inherit;
+  }
+
+  /* The tulip is a button: a click tells why it is a tulip (tulip.ts). */
+  .tulip {
+    flex-shrink: 0;
+    display: flex;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  /* Centred on the line box, the tulip would sit 0.12 s below the middle of the capitals. It turns
+     about the foot of its stem. */
+  .logo :global(svg) {
+    width: calc(var(--s) * 1.4);
+    height: calc(var(--s) * 1.4);
+    transform: translateY(calc(var(--s) * -0.12));
+    transform-origin: 50% 90%;
+  }
+
+  .tulip-note {
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  .lead {
+    font-size: 18px;
+    color: var(--ink-muted);
+  }
+
+  /* The flourish: the end of the sentence in ink, with a vermillion stroke under it. The stroke is
+     revealed once the page loads, and drawn again when the sentence is hovered. */
+  .flourish {
+    position: relative;
+    display: inline-block;
+    color: var(--ink);
+  }
+
+  .flourish svg {
+    position: absolute;
+    left: -2%;
+    bottom: -6px;
+    width: 104%;
+    height: 12px;
+    overflow: visible;
+  }
+
+  .flourish path {
+    fill: none;
+    stroke: var(--vermillion);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+  }
+
+  .links {
+    font-size: 15px;
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  h2::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--line);
+  }
+
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .entry {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  h3 {
+    font-size: 17px;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+
+  .text {
+    color: var(--ink-muted);
+  }
+
+  /* The arrow after a link (Icon.astro, a component of its own: hence :global), sitting on the text
+     like a character. */
+  :global(.arrow) {
+    display: inline-block;
+    vertical-align: -0.125em;
+  }
+
+  .project {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (max-width: 600px) {
+    main {
+      gap: 48px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* The tulip leans when hovered, a hint that it does something, and sways when clicked. */
+    .tulip :global(svg) {
+      transition: rotate 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+    }
+
+    .tulip:hover :global(svg) {
+      rotate: -8deg;
+    }
+
+    .tulip.sway :global(svg) {
+      animation: sway 0.8s ease-in-out;
+    }
+
+    .tulip-note:not([hidden]) {
+      animation: fade-in 0.4s ease-out;
+    }
+
+    .flourish svg {
+      animation: reveal 0.9s cubic-bezier(0.6, 0, 0.2, 1) 0.6s both;
+    }
+
+    .flourish:hover path {
+      animation: draw 0.9s cubic-bezier(0.6, 0, 0.2, 1);
+    }
+
+    /* A project's mark moves while its link is hovered: Ranch's bars swap, like a queue. */
+    .project :global(.mark rect) {
+      transition: transform 0.35s cubic-bezier(0.3, 0, 0.2, 1);
+    }
+
+    .project:hover :global(.mark .bar-active) {
+      transform: translateX(-6px);
+    }
+
+    .project:hover :global(.mark .bar-waiting) {
+      transform: translateX(6px);
+    }
+  }
+
+  @keyframes sway {
+    25% {
+      rotate: -14deg;
+    }
+    55% {
+      rotate: 10deg;
+    }
+    80% {
+      rotate: -4deg;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      translate: 0 -4px;
+    }
+  }
+
+  @keyframes reveal {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0);
+    }
+  }
+
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

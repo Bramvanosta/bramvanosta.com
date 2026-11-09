@@ -1,6 +1,7 @@
 ---
 // Root layout for every site: SEO and social <head>, then the page.
 import "../styles/global.css";
+import { DEFAULT_LOCALE, LANGUAGE_TAGS, LOCALES, type Locale } from "../lib/i18n.ts";
 import { link } from "../lib/links.ts";
 import { publicUrl, subsiteOfPath } from "../lib/sites.ts";
 
@@ -14,9 +15,22 @@ interface Props {
   imageAlt: string;
   /** For 404 pages: kept out of search results, with no canonical URL. */
   noindex?: boolean;
+  /** The page's language. English by default. */
+  locale?: Locale;
+  /** The page in each of its languages, for search engines: { hreflang: "fr", href }, and "x-default". */
+  alternates?: { hreflang: string; href: string }[];
 }
 
-const { title, description, siteName, image, imageAlt, noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  siteName,
+  image,
+  imageAlt,
+  noindex = false,
+  locale = DEFAULT_LOCALE,
+  alternates = [],
+} = Astro.props;
 const path = Astro.url.pathname;
 const canonical = publicUrl(path);
 const subsite = subsiteOfPath(path);
@@ -24,13 +38,16 @@ const root = subsite ? `/${subsite}/` : "/";
 ---
 
 <!doctype html>
-<html lang="en-GB">
+<html lang={LANGUAGE_TAGS[locale].html}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {alternates.map(({ hreflang, href }) => (
+      <link rel="alternate" hreflang={hreflang} href={href} />
+    ))}
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href={link(`${root}favicon.ico`, path)} sizes="32x32" />
     <link rel="icon" href={link(`${root}favicon.svg`, path)} type="image/svg+xml" />
@@ -45,7 +62,11 @@ const root = subsite ? `/${subsite}/` : "/";
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={imageAlt} />
-    <meta property="og:locale" content="en_GB" />
+    <meta property="og:locale" content={LANGUAGE_TAGS[locale].og} />
+    {alternates.length > 0 &&
+      LOCALES.filter((other) => other !== locale).map((other) => (
+        <meta property="og:locale:alternate" content={LANGUAGE_TAGS[other].og} />
+      ))}
     <meta name="twitter:card" content="summary_large_image" />
     <slot name="head" />
   </head>
