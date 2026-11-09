@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import worker, { route, type Env } from "./index.ts";
+import worker, { languageRedirect, route, type Env } from "./index.ts";
 
 const at = (href: string) => route(new URL(href));
 
 /** Runs the Worker against an assets layer that always answers `asset`, and records what it was asked for. */
-async function serve(href: string, asset = new Response("ok")) {
+async function serve(href: string, asset = new Response("ok"), headers: HeadersInit = {}) {
   const requested: string[] = [];
   const env: Env = {
     ASSETS: {
@@ -15,7 +15,7 @@ async function serve(href: string, asset = new Response("ok")) {
       },
     },
   };
-  const response = await worker.fetch(new Request(href), env);
+  const response = await worker.fetch(new Request(href, { headers }), env);
   return { response, requested };
 }
 
@@ -129,4 +129,53 @@ test("a redirect never reaches the assets, and carries the security headers", as
   assert.equal(response.headers.get("Location"), "https://ranch.bramvanosta.com/");
   assert.ok(response.headers.get("Strict-Transport-Security"));
   assert.deepEqual(requested, []);
+});
+
+const language = (href: string, headers: HeadersInit = {}) => languageRedirect(new URL(href), new Headers(headers));
+
+test("the English home page sends a browser that prefers French to /fr/", () => {
+  assert.deepEqual(language("https://bramvanosta.com/", { "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8" }), {
+    location: "https://bramvanosta.com/fr/",
+  });
+  assert.equal(language("https://bramvanosta.com/", { "Accept-Language": "en-GB,fr;q=0.8" }), undefined);
+  assert.equal(language("https://bramvanosta.com/", { "Accept-Language": "nl-NL,de" }), undefined);
+  assert.equal(language("https://bramvanosta.com/"), undefined);
+});
+
+test("a language picked with the switch beats the browser's, and other pages stay as asked for", () => {
+  const french = { "Accept-Language": "fr-FR" };
+  assert.equal(language("https://bramvanosta.com/", { ...french, Cookie: "a=1; lang=en" }), undefined);
+  assert.deepEqual(language("https://bramvanosta.com/", { Cookie: "lang=fr" }), {
+    location: "https://bramvanosta.com/fr/",
+  });
+  assert.equal(language("https://bramvanosta.com/fr/", { Cookie: "lang=en" }), undefined);
+  assert.equal(language("https://bramvanosta.com/404", french), undefined);
+});
+
+test("a link of the switch keeps the language in a cookie and drops its parameter", () => {
+  const picked = language("https://bramvanosta.com/fr/?lang=fr&utm_source=x");
+  assert.equal(picked?.location, "https://bramvanosta.com/fr/?utm_source=x");
+  assert.match(picked?.cookie ?? "", /^lang=fr; Path=\/; Max-Age=31536000; SameSite=Lax; Secure$/);
+  assert.equal(
+    language("https://bramvanosta.com/?lang=en", { "Accept-Language": "fr" })?.location,
+    "https://bramvanosta.com/",
+  );
+  assert.equal(language("https://bramvanosta.com/?lang=nl"), undefined);
+});
+
+test("the language redirect is temporary, uncached, and the home page varies with the language", async () => {
+  const redirect = await serve("https://bramvanosta.com/?lang=fr");
+  assert.equal(redirect.response.status, 302);
+  assert.equal(redirect.response.headers.get("Location"), "https://bramvanosta.com/fr/");
+  assert.match(redirect.response.headers.get("Set-Cookie") ?? "", /^lang=fr;/);
+  assert.equal(redirect.response.headers.get("Cache-Control"), "no-store");
+  assert.ok(redirect.response.headers.get("Strict-Transport-Security"));
+  assert.deepEqual(redirect.requested, []);
+
+  const home = await serve("https://bramvanosta.com/", undefined, { "Accept-Language": "en" });
+  assert.deepEqual(home.requested, ["/"]);
+  assert.equal(home.response.headers.get("Vary"), "Accept-Language, Cookie");
+  const ranch = await serve("https://ranch.bramvanosta.com/", undefined, { "Accept-Language": "fr" });
+  assert.deepEqual(ranch.requested, ["/ranch/"]);
+  assert.equal(ranch.response.headers.get("Vary"), null);
 });

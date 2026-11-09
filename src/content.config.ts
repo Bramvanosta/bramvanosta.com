@@ -8,6 +8,8 @@ import { SUBSITES } from "./lib/sites.ts";
 const project = z.object({
   name: z.string(),
   summary: z.string(),
+  /** The summary on the French home page. The English one is shown when it is missing. */
+  summaryFr: z.string().optional(),
   order: z.number(),
   /** Not listed on the home page. The file is public in this repository, so add it only once the name can be. */
   draft: z.boolean().default(false),

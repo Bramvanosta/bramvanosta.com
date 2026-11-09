@@ -1,6 +1,8 @@
 ---
 // Layout of bramvanosta.com: one reading column, the page's <main> then the footer.
 import { Font } from "astro:assets";
+import { COPY } from "../lib/home-copy.ts";
+import { DEFAULT_LOCALE, type Locale } from "../lib/i18n.ts";
 import { PROFILE } from "../lib/profile.ts";
 import Base from "./Base.astro";
 import "../styles/home.css";
@@ -9,9 +11,19 @@ interface Props {
   title: string;
   description: string;
   noindex?: boolean;
+  locale?: Locale;
+  alternates?: { hreflang: string; href: string }[];
+  imageAlt?: string;
 }
 
-const { title, description, noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  noindex = false,
+  locale = DEFAULT_LOCALE,
+  alternates = [],
+  imageAlt = COPY[locale].imageAlt,
+} = Astro.props;
 ---
 
 <Base
@@ -19,8 +31,10 @@ const { title, description, noindex = false } = Astro.props;
   description={description}
   siteName={PROFILE.name}
   image="/og.png"
-  imageAlt="Bram van Osta, freelance full-stack developer in south-west France"
+  imageAlt={imageAlt}
   noindex={noindex}
+  locale={locale}
+  alternates={alternates}
 >
   <Font cssVariable="--font-inter" preload slot="head" />
   <Font cssVariable="--font-plex-mono" preload slot="head" />
