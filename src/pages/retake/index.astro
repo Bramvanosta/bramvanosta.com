@@ -1,0 +1,833 @@
+---
+import CopyCommand from "../../components/CopyCommand.astro";
+import Icon, { type IconName } from "../../components/Icon.astro";
+import JsonLd from "../../components/JsonLd.astro";
+import RetakeMark from "../../components/retake/RetakeMark.astro";
+import Screenshot from "../../components/retake/Screenshot.astro";
+import Shot from "../../components/retake/Shot.astro";
+import TakeScene from "../../components/retake/TakeScene.astro";
+import RetakeLayout from "../../layouts/Retake.astro";
+import { PERSON } from "../../lib/profile.ts";
+import { RETAKE } from "../../lib/retake.ts";
+import { publicUrl } from "../../lib/sites.ts";
+import studioEdit from "../../assets/retake/studio-edit.png";
+import studioReview from "../../assets/retake/studio-review.png";
+import videoDocument from "../../assets/retake/video-document.webp";
+import videoNotification from "../../assets/retake/video-notification.webp";
+import videoProposal from "../../assets/retake/video-proposal.webp";
+
+const description =
+  "Retake turns a written YAML scenario into a finished product video: a headless capture with the cursor drawn in the page, edited automatically with themeable components. A macOS app, with an MCP server for AI agents.";
+
+const platforms: { icon: IconName; label: string }[] = [
+  { icon: "monitor", label: "macOS 15 or later, Apple silicon" },
+  { icon: "terminal", label: "Linux: from the source" },
+  { icon: "plug", label: "MCP server included" },
+];
+
+// The pipeline, in the Studio's words: Script · Shoot · Edit · Review, then the files to deliver.
+const pipeline: { name: string; title: string; text: string }[] = [
+  {
+    name: "Script",
+    title: "Describe the video in YAML",
+    text: "Scenes, steps (click, type, select, scroll, drop_file…), captions and edit hints. retake validate checks it, with line and column, before anything runs.",
+  },
+  {
+    name: "Shoot",
+    title: "A headless take, cursor in the page",
+    text: "Chromium plays the whole scenario at any virtual resolution, with the cursor drawn inside the page: clicks and the screen’s reactions are in sync by construction. It does not take over your screen.",
+  },
+  {
+    name: "Edit",
+    title: "Edited for you, in your theme",
+    text: "The capture and its timeline of every step become a video: browser, laptop or phone frames, captions, intro and outro, cards, zooms keyed to the action. Every piece is a Remotion component your theme styles.",
+  },
+  {
+    name: "Review",
+    title: "Checked before anyone sees it",
+    text: "Contact sheets, key frames and checks, for you or your agent, and comments pinned to a frame of the render.",
+  },
+  {
+    name: "Export",
+    title: "Ready to deliver",
+    text: "MP4 up to 4K, vertical and square versions reframed on the action, a music bed, or the raw clips with FCPXML, EDL or OTIO markers for an editor.",
+  },
+];
+
+const features: { icon: IconName; title: string; text: string }[] = [
+  {
+    icon: "layers",
+    title: "Another look, the same take",
+    text: "Render again with another theme or layout component: no new capture, no change to the scenario.",
+  },
+  {
+    icon: "shield",
+    title: "Data that holds still",
+    text: "Setup hooks prepare the data over HTTP, SQL, shell or in-page JavaScript, with their rollback. A sandbox resets a local copy of the product before every take.",
+  },
+  {
+    icon: "link",
+    title: "Built for real front-ends",
+    text: "Full-page and single-page navigations, inner scroll containers, popovers of any UI library, shadow DOM, iframes and new tabs.",
+  },
+  {
+    icon: "lock",
+    title: "Signed in, on your computer",
+    text: "Personas sign in once, in a window, and their sessions stay on your computer, outside any project.",
+  },
+  {
+    icon: "file",
+    title: "Themes from your brand",
+    text: "A theme from your logo, colours and fonts, or a draft read off your site, with its contrast checked.",
+  },
+  {
+    icon: "command",
+    title: "Your workspace, your files",
+    text: "Projects, themes, components and hooks live in a folder of yours. The tool holds no product and no brand.",
+  },
+];
+
+// The Set-up sheet of the app, as it opens at the first start.
+const setup = [
+  { name: "Command line", detail: "retake, linked from the app", action: "Install" },
+  { name: "AI client", detail: "the retake MCP server", action: "Add…" },
+  { name: "Notifications", detail: "when a job ends out of sight", action: "Allow…" },
+];
+
+// More of the Studio, two to a row, under its main screenshot.
+const screens = [
+  {
+    src: studioEdit,
+    alt: "The Edit screen: the take's player above its timeline of segments, captions, steps, camera, speed, markers and comments, with the layout and theme switches on the right",
+    caption: "Edit: the take on a timeline. Switch a layout or a theme, and only the edit changes.",
+  },
+  {
+    src: studioReview,
+    alt: "The Review screen of a render: 0 errors, 0 warnings, 0 notes, then its contact sheets and key frames",
+    caption: "Review: the render’s checks, contact sheets and key frames.",
+  },
+];
+
+// Frames of a video Retake filmed and edited, three to a row.
+const frames = [
+  {
+    src: videoNotification,
+    alt: "A coffee's product page in a card layout, a caption below it, and the supplier's web notification of a new quote request overlaid at the top right",
+    caption: "The web notification the product sent, captured and overlaid.",
+  },
+  {
+    src: videoProposal,
+    alt: "The roaster's proposal page, with a callout on its total of €720.00 including VAT",
+    caption: "A callout on the total, keyed to the step that shows it.",
+  },
+  {
+    src: videoDocument,
+    alt: "The quotation PDF the product generated, shown as a document card beside the line: a real PDF, ready to share with your team",
+    caption: "The PDF the product generated, as a document card.",
+  },
+];
+
+// What an agent calls, in order, to make a video.
+const loop = ["page_inspect", "scenario_validate", "scenario_save", "run_capture", "render", "review"];
+
+const site = publicUrl("/retake/").href;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: "Retake", url: site },
+    {
+      "@type": "SoftwareApplication",
+      name: "Retake",
+      url: site,
+      description,
+      applicationCategory: "MultimediaApplication",
+      operatingSystem: "macOS 15 or later",
+      downloadUrl: RETAKE.releases,
+      image: publicUrl("/retake/og.png").href,
+      license: "https://opensource.org/license/MIT",
+      sameAs: [RETAKE.repo],
+      author: PERSON,
+    },
+  ],
+};
+---
+
+<RetakeLayout title="Retake: write the scenario, get the product video" description={description}>
+  <JsonLd slot="head" data={structuredData} />
+  <main class="wrap" id="main">
+    <section class="hero">
+      <p class="pill">
+        Open source<span class="platforms-in-pill"> · macOS app</span> · MIT license
+      </p>
+      <h1>Write the scenario. Get the product video.</h1>
+      <p class="sub">
+        Retake plays your web app from a YAML scenario, films it headless with the cursor drawn in the page, and edits
+        the take into a finished video in your theme. Its MCP server lets your AI agents write the scenario and run it
+        all.
+      </p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#download">
+          <Icon name="download" size={18} strokeWidth={2} />
+          Download for macOS
+        </a>
+        <a class="btn" href={RETAKE.repo}>
+          View the source
+        </a>
+      </div>
+      <CopyCommand command={RETAKE.brew} />
+      <ul class="platforms">
+        {platforms.map((platform) => (
+          <li>
+            <Icon name={platform.icon} />
+            {platform.label}
+          </li>
+        ))}
+      </ul>
+      <TakeScene />
+    </section>
+
+    <section id="how" aria-labelledby="how-title">
+      <div class="head">
+        <p class="kicker">How it works</p>
+        <h2 class="title" id="how-title">
+          From a few lines of YAML to a finished video
+        </h2>
+        <p class="lede">
+          One take, one timeline of every step, and an editor that reads it: no cursor added afterwards, no zoom guessed
+          from a timestamp.
+        </p>
+      </div>
+      <ol class="pipeline">
+        {pipeline.map((stage, index) => (
+          <li>
+            <span class="stage">
+              <b>{index + 1}</b>
+              {stage.name}
+            </span>
+            <h3>{stage.title}</h3>
+            <p>{stage.text}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="tour" aria-labelledby="tour-title">
+      <div class="head centered">
+        <p class="kicker">A closer look</p>
+        <h2 class="title" id="tour-title">
+          The Studio: Script, Shoot, Edit, Review
+        </h2>
+        <p class="lede">
+          One window for every scenario: its blocks, its takes, its timeline, and its review with the frame comments.
+        </p>
+      </div>
+      <Screenshot />
+      <div class="shots">
+        {screens.map((screen) => (
+          <Shot
+            {...screen}
+            sizes="(min-width: 1120px) 520px, (min-width: 721px) calc(50vw - 40px), calc(100vw - 40px)"
+          />
+        ))}
+      </div>
+    </section>
+
+    <section id="made" aria-labelledby="made-title">
+      <div class="head">
+        <p class="kicker">Made with Retake</p>
+        <h2 class="title" id="made-title">
+          Frames from a finished video
+        </h2>
+        <p class="lede">
+          Retake filmed and edited Northfield, the invented coffee wholesale platform its repository ships to film:
+          captions, cards, overlays and what the product sent along the way.
+        </p>
+      </div>
+      <div class="shots three">
+        {frames.map((frame) => (
+          <Shot
+            {...frame}
+            sizes="(min-width: 1120px) 341px, (min-width: 901px) calc(33vw - 32px), (min-width: 721px) calc(50vw - 40px), calc(100vw - 40px)"
+          />
+        ))}
+      </div>
+    </section>
+
+    <section id="features" aria-labelledby="features-title">
+      <div class="head">
+        <p class="kicker">Why Retake</p>
+        <h2 class="title" id="features-title">
+          Takes you can trust, for any web app
+        </h2>
+      </div>
+      <div class="grid">
+        {features.map((feature) => (
+          <div class="card">
+            <Icon name={feature.icon} size={22} class="feature-icon" />
+            <h3>{feature.title}</h3>
+            <p>{feature.text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section id="app" class="split" aria-labelledby="app-title">
+      <div class="split-text">
+        <p class="kicker">The macOS app</p>
+        <h2 class="title" id="app-title">
+          One app, everything inside
+        </h2>
+        <p class="lede">
+          Retake.app carries its own Node.js, engine, Chromium, ffmpeg, and starter themes. Nothing else to install.
+        </p>
+        <ul class="points">
+          <li>Drag Retake from its disk image to Applications, and open it.</li>
+          <li>The first run makes your workspace, ~/Retake, or opens a folder you choose.</li>
+          <li>
+            The Set-up sheet links the retake command and registers the MCP server in your AI client, each only when you
+            click.
+          </li>
+          <li>Updates are checked at launch. Nothing installs until you click Install and Restart.</li>
+        </ul>
+      </div>
+      <figure
+        class="sheet"
+        role="img"
+        aria-label="The Set-up sheet of the app: install the retake command, add the MCP server to an AI client, allow notifications. Every step is optional."
+      >
+        <span class="sheet-head">
+          <RetakeMark size={28} />
+          <span>
+            <b>Set Up Retake</b>
+            <span class="dim">Every step is optional.</span>
+          </span>
+        </span>
+        {setup.map((row) => (
+          <span class="sheet-row">
+            <span>
+              <b>{row.name}</b> <span class="dim">{row.detail}</span>
+            </span>
+            <span class="sheet-action">{row.action}</span>
+          </span>
+        ))}
+        <span class="sheet-foot">
+          <span class="sheet-done">Done</span>
+        </span>
+      </figure>
+    </section>
+
+    <section id="agents" class="split reverse" aria-labelledby="agents-title">
+      <div class="split-text">
+        <p class="kicker">AI agents</p>
+        <h2 class="title" id="agents-title">
+          Ask your agent for the video
+        </h2>
+        <p class="lede">
+          Retake ships an MCP server. Your agent inspects your product’s pages, writes the scenario itself, then films,
+          renders and reviews it with the same engine as the Studio.
+        </p>
+        <ul class="points">
+          <li>Or show it the flow once, in a window, and it reads the draft.</li>
+          <li>Hooks that need a human wait for your approval in the client.</li>
+          <li>Renders run guarded: the project’s files only, no network.</li>
+          <li>It reads the comments on a frame, changes the video, renders it again and resolves them.</li>
+          <li>
+            Any MCP client can connect: <code>retake mcp --print-config</code> prints its configuration.
+          </li>
+        </ul>
+      </div>
+      <figure
+        class="calls"
+        role="img"
+        aria-label="The tools an agent calls in turn to make a video: page_inspect, scenario_validate, scenario_save, run_capture, render, review."
+      >
+        <span class="calls-head">
+          <Icon name="message" />
+          Your agent <span class="dim">· MCP</span>
+        </span>
+        <span class="bubble">Make a one-minute video of the price list import.</span>
+        <ol class="calls-list">
+          {loop.map((call) => (
+            <li>
+              <Icon name="check" size={13} strokeWidth={3} />
+              {call}
+            </li>
+          ))}
+        </ol>
+        <span class="calls-done">import-v1.mp4 · reviewed clean</span>
+      </figure>
+    </section>
+
+    <section id="download" aria-labelledby="download-title">
+      <div class="head">
+        <p class="kicker">Download</p>
+        <h2 class="title" id="download-title">
+          The app, or the source
+        </h2>
+      </div>
+      <div class="download">
+        <div class="card" id="download-macos">
+          <h3>macOS app</h3>
+          <p>For macOS 15 or later on Apple silicon (no Intel build yet). It updates itself, only when you click.</p>
+          <pre tabindex="0">{`${RETAKE.brew}\n# or, with the release candidates too:\n${RETAKE.brewBeta}`}</pre>
+          <a class="more" href={RETAKE.releases}>
+            Or get the .dmg from the latest release <Icon name="arrow-right" size={15} class="arrow" />
+          </a>
+        </div>
+        <div class="card" id="download-source">
+          <h3>From the source</h3>
+          <p>macOS or Linux, with Node.js 22 or later, pnpm 10, and ffmpeg 5.1 or later.</p>
+          <pre tabindex="0">{RETAKE.source}</pre>
+          <a class="more" href={`${RETAKE.repo}#readme`}>
+            Quick start, scenario language and commands, in the README{" "}
+            <Icon name="arrow-right" size={15} class="arrow" />
+          </a>
+        </div>
+      </div>
+      <p class="license">
+        Retake is under the MIT license. It renders its videos with <a href={RETAKE.remotionLicense}>Remotion</a>, which
+        is not open source: its own license applies to everyone who renders with Retake, free for individuals and for
+        companies of up to three people. The macOS app also carries GPL builds of FFmpeg, each with its notice.
+      </p>
+    </section>
+
+    <section class="closing" aria-labelledby="closing-title">
+      <RetakeMark size={64} />
+      <h2 class="title" id="closing-title">
+        Your next product video is a scenario away
+      </h2>
+      <p>Open source, under the MIT license. A macOS app, a command line, and an MCP server for your AI agents.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#download">
+          Download for macOS
+        </a>
+        <a class="btn" href={RETAKE.repo}>
+          View the source
+        </a>
+      </div>
+    </section>
+  </main>
+</RetakeLayout>
+
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .hero {
+    padding-top: 80px;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .pill {
+    padding: 4px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-family: var(--font-label);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* The pill stays on one line on a phone; the platforms are listed under the buttons anyway. */
+  @media (max-width: 480px) {
+    .platforms-in-pill {
+      display: none;
+    }
+  }
+
+  h1 {
+    max-width: 900px;
+    font-family: var(--font-display);
+    font-size: clamp(38px, 20px + 3.6vw, 60px);
+    line-height: 1.04;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .sub {
+    max-width: 720px;
+    font-size: clamp(18px, 16px + 0.4vw, 20px);
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .platforms {
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 28px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .platforms li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 680px;
+  }
+
+  .head.centered {
+    align-self: center;
+    align-items: center;
+    text-align: center;
+    max-width: 720px;
+  }
+
+  .lede {
+    font-size: 18px;
+    color: var(--muted);
+  }
+
+  .dim {
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  /* The pipeline: five stages in a row on a wide screen, joined by the line they sit on. */
+  .pipeline {
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .pipeline li {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  .stage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-label);
+    font-size: 13px;
+    color: var(--accent-ink);
+  }
+
+  .stage b {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .pipeline h3 {
+    font-size: 17px;
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .pipeline p {
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 1000px) {
+    .pipeline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pipeline li:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .pipeline {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .tour {
+    gap: 40px;
+  }
+
+  .shots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 24px;
+  }
+
+  .shots.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 900px) {
+    .shots.three {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 720px) {
+    .shots,
+    .shots.three {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 16px;
+  }
+
+  .card :global(.feature-icon) {
+    color: var(--accent-ink);
+  }
+
+  /* Text beside an illustration: the app's Set-up sheet, an agent's calls. */
+  .split {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 40px 56px;
+  }
+
+  .split.reverse {
+    flex-direction: row-reverse;
+  }
+
+  .split-text {
+    flex: 1 1 420px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .points {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sheet,
+  .calls {
+    flex: 1 1 380px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px -36px rgba(0, 0, 0, 0.45);
+    font-size: 14px;
+  }
+
+  .sheet {
+    padding: 8px 24px 20px;
+  }
+
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+  }
+
+  .sheet-head > span {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.4;
+  }
+
+  .sheet-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .sheet-action,
+  .sheet-done {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--bg);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .sheet-foot {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .sheet-done {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .calls {
+    gap: 12px;
+    padding: 20px 24px;
+  }
+
+  .calls-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  .bubble {
+    align-self: flex-end;
+    max-width: 85%;
+    padding: 8px 12px;
+    border-radius: 12px 12px 4px 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    line-height: 1.45;
+  }
+
+  .calls-list {
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: var(--font-code);
+    font-size: 13px;
+  }
+
+  .calls-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+  }
+
+  .calls-list :global(svg),
+  .calls-done {
+    color: var(--ok);
+  }
+
+  .calls-done {
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .download {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .download .card {
+    gap: 14px;
+  }
+
+  .license {
+    max-width: 760px;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .more {
+    align-self: flex-start;
+    padding: 10px 0;
+    margin-top: auto;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--accent-ink);
+    text-decoration: none;
+  }
+
+  .more:hover {
+    text-decoration: underline;
+  }
+
+  /* The arrow after the link's text (Icon.astro, a component of its own: hence :global). */
+  .more :global(.arrow) {
+    display: inline-block;
+    vertical-align: -0.125em;
+  }
+
+  .closing {
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    padding: 64px 32px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+
+  .closing p {
+    max-width: 520px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 600px) {
+    main {
+      gap: 88px;
+    }
+
+    .hero {
+      padding-top: 48px;
+    }
+
+    .download {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .closing {
+      padding: 48px 20px;
+    }
+  }
+</style>

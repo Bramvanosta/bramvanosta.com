@@ -11,6 +11,7 @@ import { publicUrl, type Subsite } from "../../lib/sites.ts";
 import Icon from "../Icon.astro";
 import JsonLd from "../JsonLd.astro";
 import RanchMark from "../ranch/RanchMark.astro";
+import RetakeMark from "../retake/RetakeMark.astro";
 import Clock from "./Clock.astro";
 import Landscape from "./Landscape.astro";
 import Tulip from "./Tulip.astro";
@@ -34,7 +35,7 @@ const alternates = [
 ];
 
 // A subsite's mark, shown next to its project's name.
-const marks: Partial<Record<Subsite, typeof RanchMark>> = { ranch: RanchMark };
+const marks: Partial<Record<Subsite, typeof RanchMark>> = { ranch: RanchMark, retake: RetakeMark };
 
 const projects = (await getCollection("projects", ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order)
@@ -385,7 +386,8 @@ const structuredData = {
       animation: draw 0.9s cubic-bezier(0.6, 0, 0.2, 1);
     }
 
-    /* A project's mark moves while its link is hovered: Ranch's bars swap, like a queue. */
+    /* A project's mark moves while its link is hovered: Ranch's bars swap, like a queue; Retake's
+       takes trade places, a new take over the last one. */
     .project :global(.mark rect) {
       transition: transform 0.35s cubic-bezier(0.3, 0, 0.2, 1);
     }
@@ -396,6 +398,14 @@ const structuredData = {
 
     .project:hover :global(.mark .bar-waiting) {
       transform: translateX(6px);
+    }
+
+    .project:hover :global(.mark .back) {
+      transform: translate(20px, 24px);
+    }
+
+    .project:hover :global(.mark .front) {
+      transform: translate(-20px, -24px);
     }
   }
 

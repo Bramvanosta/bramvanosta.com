@@ -1,0 +1,28 @@
+---
+import RetakeLayout from "../../layouts/Retake.astro";
+import { link } from "../../lib/links.ts";
+---
+
+<RetakeLayout title="Page not found · Retake" description="This page does not exist." noindex>
+  <main class="wrap" id="main">
+    <p class="kicker">404</p>
+    <h1 class="title">This page does not exist.</h1>
+    <a class="btn" href={link("/retake/", Astro.url.pathname)}>
+      Back to Retake
+    </a>
+  </main>
+</RetakeLayout>
+
+<style>
+  main {
+    padding-top: 112px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .btn {
+    margin-top: 8px;
+  }
+</style>
